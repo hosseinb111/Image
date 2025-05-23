@@ -2,25 +2,101 @@
 <html lang="fa">
 <head>
   <meta charset="UTF-8">
-  <title>Full Screen Image</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full Screen Image Viewer</title>
   <style>
-    html, body {
+    * {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background-color: black;
+      box-sizing: border-box;
     }
 
-    img {
+    body {
+      background-color: black;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    .thumbnails {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 20px;
+      background: #111;
+    }
+
+    .thumbnails img {
+      width: 100px;
+      height: 70px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.3s;
+    }
+
+    .thumbnails img:hover {
+      border-color: white;
+    }
+
+    .fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background-color: black;
+      z-index: 1000;
+    }
+
+    .fullscreen img {
       width: 100vw;
       height: 100vh;
       object-fit: cover;
-      display: block;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 30px;
+      color: white;
+      cursor: pointer;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 10px;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
-  <img src="IMG_20250523_205154_847.jpg" alt="Full Screen Image">
+
+  <div class="thumbnails">
+    <img src="1.jpg" alt="1" onclick="openFullscreen('1.jpg')">
+    <img src="2.jpg" alt="2" onclick="openFullscreen('2.jpg')">
+    <img src="3.jpg" alt="3" onclick="openFullscreen('3.jpg')">
+    <img src="4.jpg" alt="4" onclick="openFullscreen('4.jpg')">
+    <img src="5.jpg" alt="5" onclick="openFullscreen('5.jpg')">
+    <img src="6.jpg" alt="6" onclick="openFullscreen('6.jpg')">
+  </div>
+
+  <div class="fullscreen" id="fullscreen">
+    <span class="close-btn" onclick="closeFullscreen()">×</span>
+    <img id="fullscreen-img" src="" alt="Fullscreen Image">
+  </div>
+
+  <script>
+    function openFullscreen(src) {
+      document.getElementById('fullscreen-img').src = src;
+      document.getElementById('fullscreen').style.display = 'flex';
+    }
+
+    function closeFullscreen() {
+      document.getElementById('fullscreen').style.display = 'none';
+    }
+  </script>
+
 </body>
 </html>
