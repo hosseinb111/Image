@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Full Screen Image Viewer</title>
   <style>
     * {
@@ -55,7 +55,16 @@
     .fullscreen img {
       width: 100vw;
       height: 100vh;
-      object-fit: cover;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+      cursor: zoom-in;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .fullscreen img.zoomed {
+      transform: scale(2);
+      cursor: zoom-out;
     }
 
     .close-btn {
@@ -65,36 +74,45 @@
       font-size: 30px;
       color: white;
       cursor: pointer;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 5px 10px;
       border-radius: 5px;
+      user-select: none;
     }
   </style>
 </head>
 <body>
 
   <div class="thumbnails">
-    <img src="IMG_20250523_205154_984.jpg" alt="1" onclick="openFullscreen('IMG_20250523_205154_984.jpg')">
-    <img src="IMG_20250523_205154_894.jpg" alt="2" onclick="openFullscreen('IMG_20250523_205154_894.jpg')">
-    <img src="IMG_20250523_205154_847.jpg" alt="3" onclick="openFullscreen('IMG_20250523_205154_847.jpg')">
-    <img src="IMG_20250523_205154_410.jpg" alt="4" onclick="openFullscreen('IMG_20250523_205154_410.jpg')">
-    <img src="IMG_20250523_205154_233.jpg" alt="5" onclick="openFullscreen('IMG_20250523_205154_233.jpg')">
-    <img src="6.jpg" alt="6" onclick="openFullscreen('6.jpg')">
+    <img src="1.jpg" alt="1" onclick="openFullscreen('1.jpg')" />
+    <img src="2.jpg" alt="2" onclick="openFullscreen('2.jpg')" />
+    <img src="3.jpg" alt="3" onclick="openFullscreen('3.jpg')" />
+    <img src="4.jpg" alt="4" onclick="openFullscreen('4.jpg')" />
+    <img src="5.jpg" alt="5" onclick="openFullscreen('5.jpg')" />
+    <img src="6.jpg" alt="6" onclick="openFullscreen('6.jpg')" />
   </div>
 
   <div class="fullscreen" id="fullscreen">
     <span class="close-btn" onclick="closeFullscreen()">×</span>
-    <img id="fullscreen-img" src="" alt="Fullscreen Image">
+    <img id="fullscreen-img" src="" alt="Fullscreen Image" />
   </div>
 
   <script>
+    const fullscreenImg = document.getElementById('fullscreen-img');
+
     function openFullscreen(src) {
-      document.getElementById('fullscreen-img').src = src;
+      fullscreenImg.src = src;
       document.getElementById('fullscreen').style.display = 'flex';
+      fullscreenImg.classList.remove('zoomed');
     }
+
+    fullscreenImg.addEventListener('click', () => {
+      fullscreenImg.classList.toggle('zoomed');
+    });
 
     function closeFullscreen() {
       document.getElementById('fullscreen').style.display = 'none';
+      fullscreenImg.classList.remove('zoomed');
     }
   </script>
 
