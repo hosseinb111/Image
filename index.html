@@ -3,10 +3,35 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Just Another Thought That Comes True 😎 (Back4App)</title>
+    <title>Just Another Thought That Comes True 😎</title>
 
-    <!-- Parse (Back4App) JS SDK -->
-    <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+    <!--
+      Single-file, production-ready demo chat using Firebase Realtime Database.
+      - No bundlers, no frameworks. Just HTML/CSS/JS with ES modules.
+      - Two themes (dark/light) with persistence and system preference.
+      - Avatars from initials, reply/edit/delete, reactions, timestamps.
+
+      🔧 QUICK START (Testing Instructions):
+      1) Create a Firebase project (https://console.firebase.google.com).
+         - Enable Realtime Database and set rules for development (or proper secured rules).
+      2) Replace the firebaseConfig placeholder below with your own app's values.
+      3) Open this file in a modern browser. If modules are blocked by file://, serve locally:
+         - Python:   python -m http.server 8080
+         - Node:     npx http-server -p 8080
+         - Or any static server
+      4) Optional: Adjust Realtime Database rules for safe testing.
+         Example *development-only* rules (DON'T ship these to prod):
+         {
+           "rules": {
+             ".read": true,
+             ".write": true
+           }
+         }
+      5) Use the header ⚙️ to set username, toggle theme, or clear local data.
+
+      ⚠️ SECURITY NOTE:
+      This is a client-only demo. In production, use secure rules & auth.
+    -->
 
     <style>
       /* ----------------------
@@ -43,7 +68,7 @@
       html, body { height: 100%; }
       body {
         margin: 0;
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
         background: var(--bg);
         color: var(--text);
         display: flex;
@@ -51,6 +76,9 @@
         transition: background .25s ease, color .25s ease;
       }
 
+      /* ---------------
+         LAYOUT / HEADER
+         --------------- */
       .app {
         max-width: 1000px;
         margin: 0 auto;
@@ -66,31 +94,155 @@
         justify-content: space-between;
         gap: 12px;
       }
-      .brand { display: flex; align-items: flex-start; gap: 10px; }
-      .brand h1 { font-size: clamp(18px, 3vw, 24px); margin: 0; letter-spacing: .2px; color: var(--accent); }
-      .brand p { margin: 0; font-size: 12px; color: var(--muted); }
+      .brand {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .brand h1 {
+        font-size: clamp(18px, 3vw, 24px);
+        margin: 0;
+        letter-spacing: .2px;
+        color: var(--accent);
+      }
+      .brand p {
+        margin: 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
 
       .actions { display: flex; align-items: center; gap: 8px; }
-      .icon-btn { border: none; background: var(--surface); color: var(--text); padding: 10px 12px; border-radius: 12px; box-shadow: var(--shadow); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+      .icon-btn {
+        border: none; background: var(--surface);
+        color: var(--text);
+        padding: 10px 12px; border-radius: 12px;
+        box-shadow: var(--shadow);
+        cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+        transition: transform .08s ease, background .2s ease, opacity .2s ease;
+      }
       .icon-btn:hover { background: var(--surface-2); }
+      .icon-btn:active { transform: translateY(1px); }
+      .icon-btn[aria-pressed="true"] { outline: none; box-shadow: var(--ring); }
+      .icon { font-size: 18px; }
 
-      .card { background: var(--surface); border: 1px solid rgba(255,255,255,.08); border-radius: 20px; box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 60dvh; }
-      .chat { display: flex; flex-direction: column; gap: 10px; overflow: auto; padding: 8px; border-radius: 12px; background: var(--bg); border: 1px solid rgba(255,255,255,.06); min-height: 360px; max-height: 65dvh; }
+      /* -------------
+         SETTINGS PANEL
+         ------------- */
+      .panel {
+        background: var(--surface);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 16px; box-shadow: var(--shadow);
+        padding: 16px; display: none; gap: 12px; flex-direction: column;
+      }
+      .panel.open { display: flex; }
+      .panel h3 { margin: 0 0 8px 0; font-size: 16px; }
+      .field { display: flex; gap: 8px; align-items: center; }
+      .field label { font-size: 14px; color: var(--muted); min-width: 90px; }
+      .text-input, textarea {
+        width: 100%;
+        background: var(--surface-2);
+        border: 1px solid transparent;
+        color: var(--text);
+        padding: 10px 12px; border-radius: 12px;
+        outline: none; transition: border .2s ease, background .2s ease;
+      }
+      .text-input:focus, textarea:focus { border-color: var(--accent); box-shadow: var(--ring); }
+      .subtle { color: var(--muted); font-size: 12px; }
+      .danger { background: var(--danger); color: #fff; }
 
-      .msg { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; background: var(--surface-2); border-radius: 14px; padding: 10px 12px; }
-      .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; user-select: none; }
+      /* -------------
+         CARD / CHAT BOX
+         ------------- */
+      .card {
+        background: var(--surface);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 20px; box-shadow: var(--shadow);
+        padding: 16px; display: flex; flex-direction: column; gap: 12px;
+        flex: 1;
+        min-height: 60dvh;
+      }
+
+      .chat {
+        display: flex; flex-direction: column; gap: 10px;
+        overflow: auto; padding: 8px; border-radius: 12px;
+        background: var(--bg);
+        border: 1px solid rgba(255,255,255,.06);
+        min-height: 360px; max-height: 65dvh;
+        scroll-behavior: smooth;
+      }
+
+      /* Message bubble */
+      .msg {
+        display: grid; grid-template-columns: 40px 1fr auto; gap: 10px;
+        background: var(--surface-2); border-radius: 14px; padding: 10px 12px;
+        animation: fadeInUp .2s ease;
+      }
+      .avatar {
+        width: 40px; height: 40px; border-radius: 50%;
+        display: grid; place-items: center; font-weight: 700;
+        color: #fff; user-select: none;
+      }
       .msg .meta { font-size: 12px; color: var(--muted); }
       .msg .sender { font-weight: 600; }
       .msg .text { white-space: pre-wrap; word-break: break-word; margin-top: 4px; }
+      .msg .actions { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+      .pill-btn {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid rgba(255,255,255,.08);
+        padding: 6px 10px; border-radius: 999px;
+        cursor: pointer; font-size: 12px;
+      }
+      .pill-btn:hover { background: var(--surface-2); }
 
+      .reply-preview {
+        font-size: 12px; color: var(--muted);
+        background: transparent; border-left: 3px solid var(--accent);
+        padding-left: 8px; margin-bottom: 6px;
+        white-space: normal; word-break: break-word;
+      }
+
+      /* Composer */
       .composer { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-      textarea#message-input { min-height: 56px; max-height: 160px; resize: vertical; }
-      .send-btn { background: var(--accent); color: #fff; border: none; padding: 12px 18px; border-radius: 14px; cursor: pointer; font-weight: 600; }
+      textarea#message-input {
+        min-height: 56px; max-height: 160px; resize: vertical;
+      }
+      .send-btn {
+        background: var(--accent); color: #fff; border: none;
+        padding: 12px 18px; border-radius: 14px; cursor: pointer;
+        font-weight: 600; letter-spacing: .2px;
+        transition: background .2s ease, opacity .2s ease, transform .08s ease;
+      }
+      .send-btn:hover { background: var(--accent-hover); }
       .send-btn:disabled { opacity: .6; cursor: not-allowed; }
+      .send-btn:active { transform: translateY(1px); }
+
+      /* Edit inline */
+      .edit-area { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; margin-top: 6px; }
+      .edit-input { padding: 8px 10px; border-radius: 10px; }
+
+      /* Reply bar */
+      .reply-bar { display: none; align-items: center; gap: 10px; }
+      .reply-bar.open { display: flex; }
+      .reply-chip { background: var(--surface-2); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+      .link { background: transparent; border: none; color: var(--accent); cursor: pointer; }
+      .link:hover { text-decoration: underline; }
 
       footer { text-align: center; color: var(--muted); font-size: 12px; padding: 12px 4px; }
 
-      @media (max-width: 640px) { .msg { grid-template-columns: 36px 1fr auto; } .avatar { width: 36px; height: 36px; font-size: 12px; } }
+      /* Focus ring for accessibility */
+      :is(button, input, textarea):focus-visible { outline: none; box-shadow: var(--ring); }
+
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Small screens */
+      @media (max-width: 640px) {
+        .msg { grid-template-columns: 36px 1fr auto; }
+        .avatar { width: 36px; height: 36px; font-size: 12px; }
+      }
     </style>
   </head>
   <body>
@@ -98,8 +250,8 @@
       <header class="appbar" role="banner">
         <div class="brand" aria-label="App title">
           <div>
-            <h1>Free & Complicated Messenger (Back4App)</h1>
-            <p>Realtime-ish chat using Back4App (Parse) • polls every 2s</p>
+            <h1>Free & Complicated Messenger 😉✌️</h1>
+            <p>Realtime Firebase chat • replies • edits • reactions • light/dark</p>
           </div>
         </div>
         <div class="actions">
@@ -107,155 +259,436 @@
             <span class="icon" id="theme-icon" aria-hidden="true">🌙</span>
             <span id="theme-text" class="subtle">Dark</span>
           </button>
+          <button id="settings-toggle" class="icon-btn" aria-label="Open settings" title="Settings">
+            <span class="icon" aria-hidden="true">⚙️</span>
+            <span class="subtle">Settings</span>
+          </button>
         </div>
       </header>
 
-      <main class="card">
-        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">
-          <div>
-            <label class="subtle">Username</label>
-            <input id="username" class="text-input" style="margin-left:8px; padding:8px;border-radius:8px;" placeholder="your name" />
+      <section id="settings-panel" class="panel" role="region" aria-labelledby="settings-title">
+        <h3 id="settings-title">Quick Settings</h3>
+        <div class="field">
+          <label for="username-input">Username</label>
+          <input id="username-input" class="text-input" placeholder="Enter your username" />
+        </div>
+        <div class="field" role="group" aria-label="Theme">
+          <label>Theme</label>
+          <div class="actions">
+            <button id="theme-toggle-alt" class="icon-btn" aria-label="Toggle theme (alt)"><span class="icon">🌓</span> Toggle</button>
           </div>
-          <div style="text-align:right; color:var(--muted); font-size:12px;">Back4App: Client-only demo</div>
+        </div>
+        <div class="field">
+          <label>Local data</label>
+          <button id="clear-local" class="icon-btn danger" aria-label="Clear local data">Clear username & theme</button>
+        </div>
+        <p class="subtle">Your username is stored locally. Only your messages can be edited or deleted by you on this device.</p>
+      </section>
+
+      <main class="card" role="main">
+        <div id="chat-area" class="chat" aria-live="polite" aria-busy="false"></div>
+
+        <div id="reply-bar" class="reply-bar" role="status">
+          <span class="reply-chip">Replying to <strong id="replying-to-sender"></strong>: <span id="replying-to-text" class="subtle"></span></span>
+          <button id="cancel-reply" class="link" aria-label="Cancel reply">Cancel</button>
         </div>
 
-        <div id="chat" class="chat" aria-live="polite"></div>
-
-        <div class="composer">
-          <textarea id="message-input" placeholder="Write a message..."></textarea>
-          <button id="send-btn" class="send-btn">Send</button>
+        <div class="composer" role="form" aria-label="Send a message">
+          <textarea id="message-input" class="text-input" placeholder="Type a message… (Shift+Enter for newline)" aria-label="Message input"></textarea>
+          <button id="send-btn" class="send-btn" disabled aria-label="Send message">Send</button>
         </div>
       </main>
 
-      <footer>Simple demo — don't use client-only keys in production</footer>
+      <footer>made with ❤️☕️</footer>
     </div>
 
-    <script>
-      // ---------- USER-SUPPLIED BACK4APP API KEY ----------
-      // <-- You asked to put your Back4App API here. I placed your key in both APP ID and JS KEY fields.
-      const BACK4APP_APP_ID = "mC0CjSyhwHrYz5rDq0XNycTftU4cOQRl2g0CiJoe";
-      const BACK4APP_JS_KEY  = "mC0CjSyhwHrYz5rDq0XNycTftU4cOQRl2g0CiJoe";
-      const BACK4APP_SERVER_URL = 'https://parseapi.back4app.com/';
+    <script type="module">
+      // -----------------------------
+      // Firebase (Modular v11 imports)
+      // -----------------------------
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        set,
+        onValue,
+        push,
+        query,
+        orderByChild,
+        update,
+        remove,
+        serverTimestamp,
+        get,
+        runTransaction
+      } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
 
-      // Initialize Parse (Back4App)
-      Parse.initialize(BACK4APP_APP_ID, BACK4APP_JS_KEY);
-      Parse.serverURL = BACK4APP_SERVER_URL;
+      // TODO: Replace with your own Firebase project config (client-safe values)
+      // Get from Firebase Console > Project settings > General > Your apps
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
 
-      // DOM
-      const chatEl = document.getElementById('chat');
-      const sendBtn = document.getElementById('send-btn');
-      const inputEl = document.getElementById('message-input');
-      const usernameEl = document.getElementById('username');
+      const app = initializeApp(firebaseConfig);
+      const db  = getDatabase(app);
+      const messagesRef = ref(db, 'messages');
 
-      // Theme handling
-      const themeToggle = document.getElementById('theme-toggle');
-      const themeIcon = document.getElementById('theme-icon');
-      const themeText = document.getElementById('theme-text');
+      // -----------------------------
+      // DOM REFS
+      // -----------------------------
+      const $ = (sel, root=document) => root.querySelector(sel);
+      const chatArea = $('#chat-area');
+      const usernameInput = $('#username-input');
+      const messageInput = $('#message-input');
+      const sendBtn = $('#send-btn');
+      const replyBar = $('#reply-bar');
+      const replyToSender = $('#replying-to-sender');
+      const replyToText = $('#replying-to-text');
+      const cancelReplyBtn = $('#cancel-reply');
+      const settingsPanel = $('#settings-panel');
+      const settingsToggle = $('#settings-toggle');
+      const clearLocalBtn = $('#clear-local');
+      const themeToggle = $('#theme-toggle');
+      const themeToggleAlt = $('#theme-toggle-alt');
+      const themeText = $('#theme-text');
+      const themeIcon = $('#theme-icon');
 
-      function applyTheme(t){
-        document.documentElement.setAttribute('data-theme', t);
-        themeToggle.setAttribute('aria-pressed', t === 'light');
-        themeIcon.textContent = t === 'light' ? '☀️' : '🌙';
-        themeText.textContent = t === 'light' ? 'Light' : 'Dark';
-        localStorage.setItem('chat_theme', t);
+      // -----------------------------
+      // THEME MANAGEMENT
+      // -----------------------------
+      const THEME_KEY = 'pref-theme';
+      function getSystemTheme() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
       }
-      themeToggle.addEventListener('click', ()=>{
-        const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        applyTheme(next);
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const isDark = theme === 'dark';
+        themeToggle.setAttribute('aria-pressed', String(isDark));
+        themeIcon.textContent = isDark ? '🌙' : '☀️';
+        themeText.textContent = isDark ? 'Dark' : 'Light';
+        try { localStorage.setItem(THEME_KEY, theme); } catch {}
+      }
+      // Initialize theme: localStorage > system
+      (function initTheme(){
+        let theme = 'dark';
+        try {
+          theme = localStorage.getItem(THEME_KEY) || getSystemTheme();
+        } catch { theme = getSystemTheme(); }
+        applyTheme(theme);
+      })();
+      themeToggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+      themeToggleAlt.addEventListener('click', () => themeToggle.click());
+
+      // -----------------------------
+      // USERNAME (localStorage)
+      // -----------------------------
+      const NAME_KEY = 'username';
+      let currentUsername = '';
+      try {
+        currentUsername = localStorage.getItem(NAME_KEY) || '';
+      } catch {}
+      if (currentUsername) usernameInput.value = currentUsername;
+      usernameInput.addEventListener('change', (e) => {
+        currentUsername = e.target.value.trim();
+        try { localStorage.setItem(NAME_KEY, currentUsername); } catch {}
       });
-      // restore
-      applyTheme(localStorage.getItem('chat_theme') || 'dark');
 
-      // restore username
-      usernameEl.value = localStorage.getItem('chat_username') || '';
-      usernameEl.addEventListener('change', ()=> localStorage.setItem('chat_username', usernameEl.value));
+      clearLocalBtn.addEventListener('click', () => {
+        if (!confirm('Clear local username and theme?')) return;
+        try {
+          localStorage.removeItem(NAME_KEY);
+          localStorage.removeItem(THEME_KEY);
+        } catch {}
+        usernameInput.value = '';
+        currentUsername = '';
+        applyTheme(getSystemTheme());
+      });
 
-      // Escape html
-      function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+      settingsToggle.addEventListener('click', () => {
+        const open = settingsPanel.classList.toggle('open');
+        settingsToggle.setAttribute('aria-expanded', String(open));
+      });
 
-      // Render message
-      function renderMessage(obj){
-        const username = esc(obj.get('username') || 'Anon');
-        const text = esc(obj.get('text') || '');
-        const createdAt = obj.createdAt ? new Date(obj.createdAt).toLocaleString() : '';
+      // -----------------------------
+      // UTILITIES
+      // -----------------------------
+      const hashColor = (str) => {
+        // Simple deterministic HSL color based on string hash
+        let h = 0;
+        for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+        const hue = h % 360;
+        return `hsl(${hue} 70% 45%)`;
+      };
+      const initials = (name) => (name || '?')
+        .replace(/[_\-]+/g, ' ')
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(s => s[0]?.toUpperCase())
+        .join('') || '?';
+      const fmtTime = (t) => {
+        if (!t) return '';
+        const d = new Date(t);
+        return d.toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+      };
 
-        const container = document.createElement('div');
-        container.className = 'msg';
-
-        const avatar = document.createElement('div');
-        avatar.className = 'avatar';
-        avatar.style.background = '#'+(Math.abs(hashCode(username))%0xFFFFFF).toString(16).padStart(6,'0');
-        avatar.textContent = (username[0]||'?').toUpperCase();
-
-        const body = document.createElement('div');
-        const meta = document.createElement('div'); meta.className='meta';
-        meta.innerHTML = `<span class="sender">${username}</span> • <span>${createdAt}</span>`;
-        const textEl = document.createElement('div'); textEl.className='text'; textEl.textContent = obj.get('text') || '';
-
-        body.appendChild(meta);
-        body.appendChild(textEl);
-
-        container.appendChild(avatar);
-        container.appendChild(body);
-
-        return container;
+      function scrollToBottom() {
+        // Smooth scroll to newest message
+        chatArea.scrollTop = chatArea.scrollHeight;
       }
 
-      // simple hash for avatar color
-      function hashCode(s){ let h=0; for(let i=0;i<s.length;i++){ h = (h<<5)-h + s.charCodeAt(i); h |= 0; } return h; }
+      // -----------------------------
+      // REPLY COMPOSITION STATE
+      // -----------------------------
+      let replyingToMessageId = null;
+      function openReplyBar(username, text) {
+        replyToSender.textContent = username || 'Unknown';
+        replyToText.textContent = text?.slice(0, 50) || '';
+        replyBar.classList.add('open');
+      }
+      function cancelReply() {
+        replyingToMessageId = null;
+        replyBar.classList.remove('open');
+        replyToSender.textContent = '';
+        replyToText.textContent = '';
+      }
+      cancelReplyBtn.addEventListener('click', cancelReply);
 
-      // Load messages (most recent 100)
-      let lastLoad = 0;
-      async function loadMessages(){
-        try{
-          const Message = Parse.Object.extend('Message');
-          const q = new Parse.Query(Message);
-          q.descending('createdAt');
-          q.limit(100);
-          const results = await q.find();
+      // -----------------------------
+      // MESSAGE SENDING
+      // -----------------------------
+      messageInput.addEventListener('input', () => {
+        sendBtn.disabled = messageInput.value.trim().length === 0;
+      });
 
-          // render in chronological order
-          chatEl.innerHTML = '';
-          results.reverse().forEach(m => {
-            chatEl.appendChild(renderMessage(m));
-          });
+      messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendBtn.click();
+        }
+      });
 
-          // scroll to bottom
-          chatEl.scrollTop = chatEl.scrollHeight;
-          lastLoad = Date.now();
-        }catch(err){
-          console.error('loadMessages error', err);
+      async function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+        if (!currentUsername) {
+          alert('Please enter your username in Settings.');
+          usernameInput.focus();
+          return;
+        }
+        const newRef = push(messagesRef);
+        const payload = {
+          text,
+          username: currentUsername,
+          timestamp: serverTimestamp(),
+          replyTo: replyingToMessageId || null
+        };
+        try {
+          await set(newRef, payload);
+          messageInput.value = '';
+          sendBtn.disabled = true;
+          cancelReply();
+          messageInput.focus();
+        } catch (err) {
+          console.error('Error sending message:', err);
         }
       }
+      sendBtn.addEventListener('click', sendMessage);
 
-      // Send message
-      async function sendMessage(){
-        const text = inputEl.value.trim();
-        const username = (usernameEl.value || 'Anon').trim();
-        if(!text) return;
-        sendBtn.disabled = true;
-        try{
-          const Message = Parse.Object.extend('Message');
-          const m = new Message();
-          m.set('username', username);
-          m.set('text', text);
-          await m.save();
-          inputEl.value = '';
-          await loadMessages();
-        }catch(err){
-          console.error('sendMessage error', err);
-          alert('Error sending message. Check console.');
-        }finally{ sendBtn.disabled = false; }
+      // -----------------------------
+      // RENDER MESSAGES
+      // -----------------------------
+      function messageNode({ id, username, text, timestamp, replyTo, reactions }) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'msg';
+        wrapper.dataset.id = id;
+
+        // Avatar
+        const av = document.createElement('div');
+        av.className = 'avatar';
+        av.style.background = hashColor(username || '');
+        av.textContent = initials(username);
+        wrapper.appendChild(av);
+
+        // Content
+        const content = document.createElement('div');
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        const sender = document.createElement('span');
+        sender.className = 'sender';
+        sender.textContent = username || 'Unknown';
+        const time = document.createElement('span');
+        time.className = 'time';
+        time.style.marginLeft = '8px';
+        time.textContent = fmtTime(timestamp);
+        meta.append(sender, time);
+
+        content.appendChild(meta);
+
+        if (replyTo) {
+          const rp = document.createElement('div');
+          rp.className = 'reply-preview';
+          // Fetch original message (best-effort)
+          get(ref(db, 'messages/' + replyTo)).then(snap => {
+            if (snap.exists()) {
+              const data = snap.val();
+              rp.innerHTML = `Replying to <strong>${(data.username||'Unknown')}</strong>: "${(data.text||'').slice(0,20)}..."`;
+            } else {
+              rp.textContent = 'Replying to a deleted message.';
+            }
+          }).catch(()=>{ rp.textContent = 'Reply details unavailable.'; });
+          content.appendChild(rp);
+        }
+
+        const textEl = document.createElement('div');
+        textEl.className = 'text';
+        textEl.id = `msg-text-${id}`;
+        textEl.textContent = text;
+        content.appendChild(textEl);
+
+        // Owner-only edit/delete
+        let isOwner = (username === currentUsername);
+        if (isOwner) {
+          const editWrap = document.createElement('div');
+          editWrap.className = 'edit-area';
+          editWrap.style.display = 'none';
+
+          const editInput = document.createElement('input');
+          editInput.className = 'text-input edit-input';
+          editInput.value = text;
+
+          const saveBtn = document.createElement('button');
+          saveBtn.className = 'pill-btn';
+          saveBtn.textContent = 'Save';
+          saveBtn.addEventListener('click', async () => {
+            const v = editInput.value.trim();
+            if (!v) { alert('Message cannot be empty.'); return; }
+            try {
+              await update(ref(db, 'messages/' + id), { text: v });
+              textEl.textContent = v;
+            } catch (e) { console.error('Update failed', e); }
+            finally { editWrap.style.display = 'none'; textEl.style.display = ''; }
+          });
+
+          const cancelBtn = document.createElement('button');
+          cancelBtn.className = 'pill-btn';
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.addEventListener('click', () => {
+            editInput.value = textEl.textContent;
+            editWrap.style.display = 'none';
+            textEl.style.display = '';
+          });
+
+          editWrap.append(editInput, saveBtn, cancelBtn);
+          content.appendChild(editWrap);
+        }
+
+        wrapper.appendChild(content);
+
+        // Actions (reply / reactions / edit / delete)
+        const acts = document.createElement('div');
+        acts.className = 'actions';
+
+        const replyBtn = document.createElement('button');
+        replyBtn.className = 'pill-btn';
+        replyBtn.textContent = 'Reply';
+        replyBtn.addEventListener('click', () => {
+          replyingToMessageId = id;
+          openReplyBar(username, text);
+          messageInput.focus();
+        });
+        acts.appendChild(replyBtn);
+
+        // Reactions
+        const upBtn = document.createElement('button');
+        upBtn.className = 'pill-btn';
+        const upCount = document.createElement('span');
+        upCount.textContent = String((reactions && reactions.thumbsUp) || 0);
+        upBtn.innerHTML = '👍 '; upBtn.appendChild(upCount);
+        upBtn.addEventListener('click', () => react(id, 'thumbsUp', upCount));
+
+        const downBtn = document.createElement('button');
+        downBtn.className = 'pill-btn';
+        const downCount = document.createElement('span');
+        downCount.textContent = String((reactions && reactions.thumbsDown) || 0);
+        downBtn.innerHTML = '👎 '; downBtn.appendChild(downCount);
+        downBtn.addEventListener('click', () => react(id, 'thumbsDown', downCount));
+
+        acts.append(upBtn, downBtn);
+
+        if (isOwner) {
+          const editBtn = document.createElement('button');
+          editBtn.className = 'pill-btn';
+          editBtn.textContent = 'Edit';
+          editBtn.addEventListener('click', () => {
+            const editWrap = content.querySelector('.edit-area');
+            const shown = editWrap.style.display !== 'none';
+            editWrap.style.display = shown ? 'none' : '';
+            textEl.style.display = shown ? '' : 'none';
+            if (!shown) editWrap.querySelector('input').focus();
+          });
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'pill-btn';
+          delBtn.textContent = 'Delete';
+          delBtn.addEventListener('click', async () => {
+            if (!confirm('Delete this message?')) return;
+            try { await remove(ref(db, 'messages/' + id)); } catch (e) { console.error('Delete failed', e); }
+          });
+
+          acts.append(editBtn, delBtn);
+        }
+
+        wrapper.appendChild(acts);
+        return wrapper;
       }
 
-      sendBtn.addEventListener('click', sendMessage);
-      inputEl.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendMessage(); });
+      async function react(id, type, countEl) {
+        const r = ref(db, 'messages/' + id + '/reactions/' + type);
+        try {
+          await runTransaction(r, (curr) => (curr || 0) + 1);
+        } catch (e) {
+          console.error('Reaction failed', e);
+        }
+        // UI will update via onValue; keeping it snappy is optional
+        if (countEl) countEl.textContent = String((+countEl.textContent || 0) + 1);
+      }
 
-      // initial load + polling
-      loadMessages();
-      setInterval(loadMessages, 2000);
+      // -----------------------------
+      // SUBSCRIBE & RENDER LIST
+      // -----------------------------
+      const q = query(messagesRef, orderByChild('timestamp'));
+      onValue(q, async (snap) => {
+        chatArea.setAttribute('aria-busy', 'true');
+        chatArea.innerHTML = '';
+        const list = [];
+        snap.forEach(child => list.push({ id: child.key, ...child.val() }));
+        // Render oldest -> newest
+        for (const m of list) {
+          const node = messageNode({
+            id: m.id,
+            username: m.username,
+            text: m.text,
+            timestamp: typeof m.timestamp === 'number' ? m.timestamp : (m.timestamp?.toMillis?.() || Date.now()),
+            replyTo: m.replyTo,
+            reactions: m.reactions || {}
+          });
+          chatArea.appendChild(node);
+        }
+        chatArea.setAttribute('aria-busy', 'false');
+        scrollToBottom();
+      });
 
-      // helpful dev note: make sure you created the 'Message' class on Back4App (or allow automatic class creation in Parse settings).
+      // Focus behavior on load
+      window.addEventListener('load', () => {
+        if (!usernameInput.value) settingsPanel.classList.add('open');
+        messageInput.focus();
+      });
     </script>
   </body>
 </html>
