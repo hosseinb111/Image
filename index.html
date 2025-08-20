@@ -1,40 +1,12 @@
-You said:
 <!doctype html>
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Just Another Thought That Comes True 😎</title>
-
-    <!--
-      Single-file, production-ready demo chat using Firebase Realtime Database.
-      - No bundlers, no frameworks. Just HTML/CSS/JS with ES modules.
-      - Two themes (dark/light) with persistence and system preference.
-      - Avatars from initials, reply/edit/delete, reactions, timestamps.
-
-      🔧 QUICK START (Testing Instructions):
-      1) Create a Firebase project (https://console.firebase.google.com).
-         - Enable Realtime Database and set rules for development (or proper secured rules).
-      2) Replace the firebaseConfig placeholder below with your own app's values.
-      3) Open this file in a modern browser. If modules are blocked by file://, serve locally:
-         - Python:   python -m http.server 8080
-         - Node:     npx http-server -p 8080
-         - Or any static server
-      4) Optional: Adjust Realtime Database rules for safe testing.
-         Example *development-only* rules (DON'T ship these to prod):
-         {
-           "rules": {
-             ".read": true,
-             ".write": true
-           }
-         }
-      5) Use the header ⚙️ to set username, toggle theme, or clear local data.
-
-      ⚠️ SECURITY NOTE:
-      This is a client-only demo. In production, use secure rules & auth.
-    -->
-
     <style>
+      /* CSS styles are unchanged, so they are omitted here for brevity */
+      /* ... The entire <style> block from your original code goes here ... */
       /* ----------------------
          THEME SYSTEM (CSS VARS)
          ---------------------- */
@@ -252,7 +224,7 @@ You said:
         <div class="brand" aria-label="App title">
           <div>
             <h1>Free & Complicated Messenger 😉✌️</h1>
-            <p>Realtime Firebase chat • replies • edits • reactions • light/dark</p>
+            <p>Realtime Supabase chat • replies • edits • reactions • light/dark</p>
           </div>
         </div>
         <div class="actions">
@@ -303,46 +275,22 @@ You said:
       <footer>made with ❤️☕️</footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script type="module">
       // -----------------------------
-      // Firebase (Modular v11 imports)
+      // Supabase Client Setup
       // -----------------------------
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-      import {
-        getDatabase,
-        ref,
-        set,
-        onValue,
-        push,
-        query,
-        orderByChild,
-        update,
-        remove,
-        serverTimestamp,
-        get,
-        runTransaction
-      } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+      const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // <-- آدرس پروژه خود را اینجا قرار دهید
+      const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // <-- کلید عمومی خود را اینجا قرار دهید
 
-      // TODO: Replace with your own Firebase project config (client-safe values)
-      // Get from Firebase Console > Project settings > General > Your apps
-      const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db  = getDatabase(app);
-      const messagesRef = ref(db, 'messages');
+      const { createClient } = supabase;
+      const dbClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       // -----------------------------
-      // DOM REFS
+      // DOM REFS (Unchanged)
       // -----------------------------
-      const $ = (sel, root=document) => root.querySelector(sel);
+      const $ = (sel, root = document) => root.querySelector(sel);
       const chatArea = $('#chat-area');
       const usernameInput = $('#username-input');
       const messageInput = $('#message-input');
@@ -360,12 +308,10 @@ You said:
       const themeIcon = $('#theme-icon');
 
       // -----------------------------
-      // THEME MANAGEMENT
+      // THEME & USERNAME MANAGEMENT (Unchanged)
       // -----------------------------
       const THEME_KEY = 'pref-theme';
-      function getSystemTheme() {
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-      }
+      function getSystemTheme() { return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
       function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         const isDark = theme === 'dark';
@@ -374,149 +320,79 @@ You said:
         themeText.textContent = isDark ? 'Dark' : 'Light';
         try { localStorage.setItem(THEME_KEY, theme); } catch {}
       }
-      // Initialize theme: localStorage > system
-      (function initTheme(){
-        let theme = 'dark';
-        try {
-          theme = localStorage.getItem(THEME_KEY) || getSystemTheme();
-        } catch { theme = getSystemTheme(); }
-        applyTheme(theme);
-      })();
+      (function initTheme(){ let theme = 'dark'; try { theme = localStorage.getItem(THEME_KEY) || getSystemTheme(); } catch { theme = getSystemTheme(); } applyTheme(theme); })();
       themeToggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
       themeToggleAlt.addEventListener('click', () => themeToggle.click());
 
-      // -----------------------------
-      // USERNAME (localStorage)
-      // -----------------------------
       const NAME_KEY = 'username';
       let currentUsername = '';
-      try {
-        currentUsername = localStorage.getItem(NAME_KEY) || '';
-      } catch {}
+      try { currentUsername = localStorage.getItem(NAME_KEY) || ''; } catch {}
       if (currentUsername) usernameInput.value = currentUsername;
-      usernameInput.addEventListener('change', (e) => {
-        currentUsername = e.target.value.trim();
-        try { localStorage.setItem(NAME_KEY, currentUsername); } catch {}
-      });
-
-      clearLocalBtn.addEventListener('click', () => {
-        if (!confirm('Clear local username and theme?')) return;
-        try {
-          localStorage.removeItem(NAME_KEY);
-          localStorage.removeItem(THEME_KEY);
-        } catch {}
-        usernameInput.value = '';
-        currentUsername = '';
-        applyTheme(getSystemTheme());
-      });
-
-      settingsToggle.addEventListener('click', () => {
-        const open = settingsPanel.classList.toggle('open');
-        settingsToggle.setAttribute('aria-expanded', String(open));
-      });
+      usernameInput.addEventListener('change', (e) => { currentUsername = e.target.value.trim(); try { localStorage.setItem(NAME_KEY, currentUsername); } catch {} });
+      clearLocalBtn.addEventListener('click', () => { if (!confirm('Clear local username and theme?')) return; try { localStorage.removeItem(NAME_KEY); localStorage.removeItem(THEME_KEY); } catch {} usernameInput.value = ''; currentUsername = ''; applyTheme(getSystemTheme()); });
+      settingsToggle.addEventListener('click', () => { const open = settingsPanel.classList.toggle('open'); settingsToggle.setAttribute('aria-expanded', String(open)); });
 
       // -----------------------------
-      // UTILITIES
+      // UTILITIES (Unchanged)
       // -----------------------------
-      const hashColor = (str) => {
-        // Simple deterministic HSL color based on string hash
-        let h = 0;
-        for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
-        const hue = h % 360;
-        return hsl(${hue} 70% 45%);
-      };
-      const initials = (name) => (name || '?')
-        .replace(/[_\-]+/g, ' ')
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map(s => s[0]?.toUpperCase())
-        .join('') || '?';
-      const fmtTime = (t) => {
-        if (!t) return '';
-        const d = new Date(t);
-        return d.toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
-      };
-
-      function scrollToBottom() {
-        // Smooth scroll to newest message
-        chatArea.scrollTop = chatArea.scrollHeight;
-      }
+      const hashColor = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; const hue = h % 360; return `hsl(${hue} 70% 45%)`; };
+      const initials = (name) => (name || '?').replace(/[_\-]+/g, ' ').split(' ').filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase()).join('') || '?';
+      const fmtTime = (t) => { if (!t) return ''; const d = new Date(t); return d.toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }); };
+      function scrollToBottom() { chatArea.scrollTop = chatArea.scrollHeight; }
 
       // -----------------------------
-      // REPLY COMPOSITION STATE
+      // REPLY STATE (Unchanged)
       // -----------------------------
       let replyingToMessageId = null;
-      function openReplyBar(username, text) {
-        replyToSender.textContent = username || 'Unknown';
-        replyToText.textContent = text?.slice(0, 50) || '';
-        replyBar.classList.add('open');
-      }
-      function cancelReply() {
-        replyingToMessageId = null;
-        replyBar.classList.remove('open');
-        replyToSender.textContent = '';
-        replyToText.textContent = '';
-      }
+      function openReplyBar(username, text) { replyToSender.textContent = username || 'Unknown'; replyToText.textContent = text?.slice(0, 50) || ''; replyBar.classList.add('open'); }
+      function cancelReply() { replyingToMessageId = null; replyBar.classList.remove('open'); replyToSender.textContent = ''; replyToText.textContent = ''; }
       cancelReplyBtn.addEventListener('click', cancelReply);
 
       // -----------------------------
-      // MESSAGE SENDING
+      // MESSAGE SENDING (Supabase)
       // -----------------------------
-      messageInput.addEventListener('input', () => {
-        sendBtn.disabled = messageInput.value.trim().length === 0;
-      });
-
-      messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendBtn.click();
-        }
-      });
+      messageInput.addEventListener('input', () => { sendBtn.disabled = messageInput.value.trim().length === 0; });
+      messageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); } });
 
       async function sendMessage() {
         const text = messageInput.value.trim();
         if (!text) return;
-        if (!currentUsername) {
-          alert('Please enter your username in Settings.');
-          usernameInput.focus();
-          return;
-        }
-        const newRef = push(messagesRef);
+        if (!currentUsername) { alert('Please enter your username in Settings.'); usernameInput.focus(); return; }
+        
         const payload = {
           text,
           username: currentUsername,
-          timestamp: serverTimestamp(),
-          replyTo: replyingToMessageId || null
+          reply_to: replyingToMessageId || null
+          // 'created_at' and 'id' are handled by Postgres
         };
-        try {
-          await set(newRef, payload);
+
+        const { error } = await dbClient.from('messages').insert([payload]);
+        if (error) {
+          console.error('Error sending message:', error);
+          alert('Could not send message.');
+        } else {
           messageInput.value = '';
           sendBtn.disabled = true;
           cancelReply();
           messageInput.focus();
-        } catch (err) {
-          console.error('Error sending message:', err);
         }
       }
       sendBtn.addEventListener('click', sendMessage);
 
       // -----------------------------
-      // RENDER MESSAGES
+      // RENDER MESSAGES (Supabase)
       // -----------------------------
-      function messageNode({ id, username, text, timestamp, replyTo, reactions }) {
+      function messageNode({ id, username, text, created_at, reply_to, reactions }) {
         const wrapper = document.createElement('div');
         wrapper.className = 'msg';
         wrapper.dataset.id = id;
 
-        // Avatar
         const av = document.createElement('div');
         av.className = 'avatar';
         av.style.background = hashColor(username || '');
         av.textContent = initials(username);
         wrapper.appendChild(av);
 
-        // Content
         const content = document.createElement('div');
         const meta = document.createElement('div');
         meta.className = 'meta';
@@ -526,100 +402,78 @@ You said:
         const time = document.createElement('span');
         time.className = 'time';
         time.style.marginLeft = '8px';
-        time.textContent = fmtTime(timestamp);
+        time.textContent = fmtTime(created_at);
         meta.append(sender, time);
-
         content.appendChild(meta);
 
-        if (replyTo) {
+        if (reply_to) {
           const rp = document.createElement('div');
           rp.className = 'reply-preview';
-          // Fetch original message (best-effort)
-          get(ref(db, 'messages/' + replyTo)).then(snap => {
-            if (snap.exists()) {
-              const data = snap.val();
-              rp.innerHTML = Replying to <strong>${(data.username||'Unknown')}</strong>: "${(data.text||'').slice(0,20)}...";
-            } else {
-              rp.textContent = 'Replying to a deleted message.';
-            }
-          }).catch(()=>{ rp.textContent = 'Reply details unavailable.'; });
+          dbClient.from('messages').select('username, text').eq('id', reply_to).single().then(({ data, error }) => {
+            if (data) {
+              rp.innerHTML = `Replying to <strong>${(data.username || 'Unknown')}</strong>: "${(data.text || '').slice(0, 20)}..."`;
+            } else { rp.textContent = 'Replying to a deleted message.'; }
+          }).catch(() => { rp.textContent = 'Reply details unavailable.'; });
           content.appendChild(rp);
         }
 
         const textEl = document.createElement('div');
         textEl.className = 'text';
-        textEl.id = msg-text-${id};
+        textEl.id = `msg-text-${id}`;
         textEl.textContent = text;
         content.appendChild(textEl);
 
-        // Owner-only edit/delete
         let isOwner = (username === currentUsername);
         if (isOwner) {
           const editWrap = document.createElement('div');
           editWrap.className = 'edit-area';
           editWrap.style.display = 'none';
-
           const editInput = document.createElement('input');
           editInput.className = 'text-input edit-input';
           editInput.value = text;
-
           const saveBtn = document.createElement('button');
           saveBtn.className = 'pill-btn';
           saveBtn.textContent = 'Save';
           saveBtn.addEventListener('click', async () => {
             const v = editInput.value.trim();
             if (!v) { alert('Message cannot be empty.'); return; }
-            try {
-              await update(ref(db, 'messages/' + id), { text: v });
-              textEl.textContent = v;
-            } catch (e) { console.error('Update failed', e); }
-            finally { editWrap.style.display = 'none'; textEl.style.display = ''; }
-          });
-
-          const cancelBtn = document.createElement('button');
-          cancelBtn.className = 'pill-btn';
-          cancelBtn.textContent = 'Cancel';
-          cancelBtn.addEventListener('click', () => {
-            editInput.value = textEl.textContent;
+            const { error } = await dbClient.from('messages').update({ text: v }).eq('id', id);
+            if (error) { console.error('Update failed', error); }
+            // UI will update via realtime, but we hide the input manually.
             editWrap.style.display = 'none';
             textEl.style.display = '';
           });
-
+          const cancelBtn = document.createElement('button');
+          cancelBtn.className = 'pill-btn';
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.addEventListener('click', () => { editInput.value = textEl.textContent; editWrap.style.display = 'none'; textEl.style.display = ''; });
           editWrap.append(editInput, saveBtn, cancelBtn);
           content.appendChild(editWrap);
         }
-
         wrapper.appendChild(content);
 
-        // Actions (reply / reactions / edit / delete)
         const acts = document.createElement('div');
         acts.className = 'actions';
-
         const replyBtn = document.createElement('button');
         replyBtn.className = 'pill-btn';
         replyBtn.textContent = 'Reply';
-        replyBtn.addEventListener('click', () => {
-          replyingToMessageId = id;
-          openReplyBar(username, text);
-          messageInput.focus();
-        });
+        replyBtn.addEventListener('click', () => { replyingToMessageId = id; openReplyBar(username, text); messageInput.focus(); });
         acts.appendChild(replyBtn);
 
-        // Reactions
+        const safeReactions = reactions || {};
         const upBtn = document.createElement('button');
         upBtn.className = 'pill-btn';
         const upCount = document.createElement('span');
-        upCount.textContent = String((reactions && reactions.thumbsUp) || 0);
+        upCount.textContent = String(safeReactions.thumbsUp || 0);
         upBtn.innerHTML = '👍 '; upBtn.appendChild(upCount);
-        upBtn.addEventListener('click', () => react(id, 'thumbsUp', upCount));
+        upBtn.addEventListener('click', () => react(id, 'thumbsUp'));
 
         const downBtn = document.createElement('button');
         downBtn.className = 'pill-btn';
         const downCount = document.createElement('span');
-        downCount.textContent = String((reactions && reactions.thumbsDown) || 0);
+        downCount.textContent = String(safeReactions.thumbsDown || 0);
         downBtn.innerHTML = '👎 '; downBtn.appendChild(downCount);
-        downBtn.addEventListener('click', () => react(id, 'thumbsDown', downCount));
-
+        downBtn.addEventListener('click', () => react(id, 'thumbsDown'));
         acts.append(upBtn, downBtn);
 
         if (isOwner) {
@@ -633,59 +487,70 @@ You said:
             textEl.style.display = shown ? '' : 'none';
             if (!shown) editWrap.querySelector('input').focus();
           });
-
           const delBtn = document.createElement('button');
           delBtn.className = 'pill-btn';
           delBtn.textContent = 'Delete';
           delBtn.addEventListener('click', async () => {
             if (!confirm('Delete this message?')) return;
-            try { await remove(ref(db, 'messages/' + id)); } catch (e) { console.error('Delete failed', e); }
+            const { error } = await dbClient.from('messages').delete().eq('id', id);
+            if (error) { console.error('Delete failed', error); }
           });
-
           acts.append(editBtn, delBtn);
         }
-
         wrapper.appendChild(acts);
         return wrapper;
       }
 
-      async function react(id, type, countEl) {
-        const r = ref(db, 'messages/' + id + '/reactions/' + type);
-        try {
-          await runTransaction(r, (curr) => (curr || 0) + 1);
-        } catch (e) {
-          console.error('Reaction failed', e);
-        }
-        // UI will update via onValue; keeping it snappy is optional
-        if (countEl) countEl.textContent = String((+countEl.textContent || 0) + 1);
+      async function react(id, type) {
+        // Use an RPC function for atomic increment to prevent race conditions
+        const { error } = await dbClient.rpc('increment_reaction', {
+          message_id_in: id,
+          reaction_type_in: type
+        });
+        if (error) console.error('Reaction failed:', error);
       }
 
       // -----------------------------
-      // SUBSCRIBE & RENDER LIST
+      // SUBSCRIBE & RENDER LIST (Supabase)
       // -----------------------------
-      const q = query(messagesRef, orderByChild('timestamp'));
-      onValue(q, async (snap) => {
+      async function fetchAndRenderMessages() {
         chatArea.setAttribute('aria-busy', 'true');
+        const { data, error } = await dbClient
+          .from('messages')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching messages:', error);
+          return;
+        }
+
         chatArea.innerHTML = '';
-        const list = [];
-        snap.forEach(child => list.push({ id: child.key, ...child.val() }));
-        // Render oldest -> newest
-        for (const m of list) {
-          const node = messageNode({
-            id: m.id,
-            username: m.username,
-            text: m.text,
-            timestamp: typeof m.timestamp === 'number' ? m.timestamp : (m.timestamp?.toMillis?.() || Date.now()),
-            replyTo: m.replyTo,
-            reactions: m.reactions || {}
-          });
+        for (const message of data) {
+          const node = messageNode(message);
           chatArea.appendChild(node);
         }
         chatArea.setAttribute('aria-busy', 'false');
         scrollToBottom();
-      });
+      }
 
-      // Focus behavior on load
+      // Initial fetch and render
+      fetchAndRenderMessages();
+
+      // Listen to DB changes
+      dbClient.channel('public:messages')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'messages' },
+          (payload) => {
+            console.log('Change received!', payload);
+            // Simple approach: re-fetch and re-render the entire list on any change
+            fetchAndRenderMessages();
+          }
+        )
+        .subscribe();
+      
+      // Focus behavior on load (Unchanged)
       window.addEventListener('load', () => {
         if (!usernameInput.value) settingsPanel.classList.add('open');
         messageInput.focus();
