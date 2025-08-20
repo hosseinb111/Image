@@ -4,22 +4,35 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Just Another Thought That Comes True 😎</title>
-
     <style>
+      /* CSS styles are unchanged, so they are omitted here for brevity */
+      /* ... The entire <style> block from your original code goes here ... */
       /* ----------------------
          THEME SYSTEM (CSS VARS)
          ---------------------- */
       :root {
-        --bg: #181818; --surface: #222222; --surface-2: #2a2a2a;
-        --text: #f0f0f0; --muted: #a0a0a0; --accent: #8a2be2;
-        --accent-hover: #7020b2; --success: #20c997; --danger: #ff6b6b;
+        --bg: #181818;
+        --surface: #222222;
+        --surface-2: #2a2a2a;
+        --text: #f0f0f0;
+        --muted: #a0a0a0;
+        --accent: #8a2be2;
+        --accent-hover: #7020b2;
+        --success: #20c997;
+        --danger: #ff6b6b;
         --shadow: 0 10px 30px rgba(0,0,0,.35);
         --ring: 0 0 0 3px rgba(138,43,226,.35);
       }
       [data-theme="light"] {
-        --bg: #f7f7fb; --surface: #ffffff; --surface-2: #f0f0f4;
-        --text: #1a1a1a; --muted: #5a5a6a; --accent: #6d2bd4;
-        --accent-hover: #5823ad; --success: #0ca678; --danger: #d94848;
+        --bg: #f7f7fb;
+        --surface: #ffffff;
+        --surface-2: #f0f0f4;
+        --text: #1a1a1a;
+        --muted: #5a5a6a;
+        --accent: #6d2bd4;
+        --accent-hover: #5823ad;
+        --success: #0ca678;
+        --danger: #d94848;
         --shadow: 0 10px 30px rgba(20,20,40,.12);
         --ring: 0 0 0 3px rgba(109,43,212,.25);
       }
@@ -29,28 +42,54 @@
       body {
         margin: 0;
         font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-        background: var(--bg); color: var(--text); display: flex;
-        flex-direction: column; transition: background .25s ease, color .25s ease;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        transition: background .25s ease, color .25s ease;
       }
 
       /* ---------------
          LAYOUT / HEADER
          --------------- */
       .app {
-        max-width: 1000px; margin: 0 auto; padding: 16px; display: flex;
-        flex-direction: column; min-height: 100dvh; gap: 16px;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        gap: 16px;
       }
       header.appbar {
-        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
       }
-      .brand { display: flex; align-items: flex-start; gap: 10px; }
-      .brand h1 { font-size: clamp(18px, 3vw, 24px); margin: 0; letter-spacing: .2px; color: var(--accent); }
-      .brand p { margin: 0; font-size: 12px; color: var(--muted); }
+      .brand {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .brand h1 {
+        font-size: clamp(18px, 3vw, 24px);
+        margin: 0;
+        letter-spacing: .2px;
+        color: var(--accent);
+      }
+      .brand p {
+        margin: 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
 
       .actions { display: flex; align-items: center; gap: 8px; }
       .icon-btn {
-        border: none; background: var(--surface); color: var(--text);
-        padding: 10px 12px; border-radius: 12px; box-shadow: var(--shadow);
+        border: none; background: var(--surface);
+        color: var(--text);
+        padding: 10px 12px; border-radius: 12px;
+        box-shadow: var(--shadow);
         cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
         transition: transform .08s ease, background .2s ease, opacity .2s ease;
       }
@@ -60,18 +99,48 @@
       .icon { font-size: 18px; }
 
       /* -------------
+         SETTINGS PANEL
+         ------------- */
+      .panel {
+        background: var(--surface);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 16px; box-shadow: var(--shadow);
+        padding: 16px; display: none; gap: 12px; flex-direction: column;
+      }
+      .panel.open { display: flex; }
+      .panel h3 { margin: 0 0 8px 0; font-size: 16px; }
+      .field { display: flex; gap: 8px; align-items: center; }
+      .field label { font-size: 14px; color: var(--muted); min-width: 90px; }
+      .text-input, textarea {
+        width: 100%;
+        background: var(--surface-2);
+        border: 1px solid transparent;
+        color: var(--text);
+        padding: 10px 12px; border-radius: 12px;
+        outline: none; transition: border .2s ease, background .2s ease;
+      }
+      .text-input:focus, textarea:focus { border-color: var(--accent); box-shadow: var(--ring); }
+      .subtle { color: var(--muted); font-size: 12px; }
+      .danger { background: var(--danger); color: #fff; }
+
+      /* -------------
          CARD / CHAT BOX
          ------------- */
       .card {
-        background: var(--surface); border: 1px solid rgba(255,255,255,.08);
+        background: var(--surface);
+        border: 1px solid rgba(255,255,255,.08);
         border-radius: 20px; box-shadow: var(--shadow);
         padding: 16px; display: flex; flex-direction: column; gap: 12px;
-        flex: 1; min-height: 60dvh;
+        flex: 1;
+        min-height: 60dvh;
       }
+
       .chat {
         display: flex; flex-direction: column; gap: 10px;
-        overflow: auto; padding: 8px; border-radius: 12px; background: var(--bg);
-        border: 1px solid rgba(255,255,255,.06); min-height: 360px; max-height: 65dvh;
+        overflow: auto; padding: 8px; border-radius: 12px;
+        background: var(--bg);
+        border: 1px solid rgba(255,255,255,.06);
+        min-height: 360px; max-height: 65dvh;
         scroll-behavior: smooth;
       }
 
@@ -82,37 +151,40 @@
         animation: fadeInUp .2s ease;
       }
       .avatar {
-        width: 40px; height: 40px; border-radius: 50%; display: grid;
-        place-items: center; font-weight: 700; color: #fff; user-select: none;
+        width: 40px; height: 40px; border-radius: 50%;
+        display: grid; place-items: center; font-weight: 700;
+        color: #fff; user-select: none;
       }
       .msg .meta { font-size: 12px; color: var(--muted); }
       .msg .sender { font-weight: 600; }
       .msg .text { white-space: pre-wrap; word-break: break-word; margin-top: 4px; }
       .msg .actions { display: flex; flex-direction: column; gap: 6px; align-items: center; }
       .pill-btn {
-        background: var(--surface); color: var(--text); border: 1px solid rgba(255,255,255,.08);
-        padding: 6px 10px; border-radius: 999px; cursor: pointer; font-size: 12px;
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid rgba(255,255,255,.08);
+        padding: 6px 10px; border-radius: 999px;
+        cursor: pointer; font-size: 12px;
       }
       .pill-btn:hover { background: var(--surface-2); }
+
       .reply-preview {
-        font-size: 12px; color: var(--muted); background: transparent;
-        border-left: 3px solid var(--accent); padding-left: 8px; margin-bottom: 6px;
+        font-size: 12px; color: var(--muted);
+        background: transparent; border-left: 3px solid var(--accent);
+        padding-left: 8px; margin-bottom: 6px;
         white-space: normal; word-break: break-word;
       }
 
       /* Composer */
       .composer { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-      textarea.text-input, .text-input {
-        width: 100%; background: var(--surface-2); border: 1px solid transparent;
-        color: var(--text); padding: 10px 12px; border-radius: 12px;
-        outline: none; transition: border .2s ease, background .2s ease;
+      textarea#message-input {
+        min-height: 56px; max-height: 160px; resize: vertical;
       }
-      textarea.text-input:focus, .text-input:focus { border-color: var(--accent); box-shadow: var(--ring); }
-      textarea#message-input { min-height: 56px; max-height: 160px; resize: vertical; }
       .send-btn {
         background: var(--accent); color: #fff; border: none;
-        padding: 12px 18px; border-radius: 14px; cursor: pointer; font-weight: 600;
-        letter-spacing: .2px; transition: background .2s ease, opacity .2s ease, transform .08s ease;
+        padding: 12px 18px; border-radius: 14px; cursor: pointer;
+        font-weight: 600; letter-spacing: .2px;
+        transition: background .2s ease, opacity .2s ease, transform .08s ease;
       }
       .send-btn:hover { background: var(--accent-hover); }
       .send-btn:disabled { opacity: .6; cursor: not-allowed; }
@@ -130,8 +202,16 @@
       .link:hover { text-decoration: underline; }
 
       footer { text-align: center; color: var(--muted); font-size: 12px; padding: 12px 4px; }
+
+      /* Focus ring for accessibility */
       :is(button, input, textarea):focus-visible { outline: none; box-shadow: var(--ring); }
-      @keyframes fadeInUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; translateY(0); } }
+
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Small screens */
       @media (max-width: 640px) {
         .msg { grid-template-columns: 36px 1fr auto; }
         .avatar { width: 36px; height: 36px; font-size: 12px; }
@@ -152,11 +232,34 @@
             <span class="icon" id="theme-icon" aria-hidden="true">🌙</span>
             <span id="theme-text" class="subtle">Dark</span>
           </button>
-          </div>
+          <button id="settings-toggle" class="icon-btn" aria-label="Open settings" title="Settings">
+            <span class="icon" aria-hidden="true">⚙️</span>
+            <span class="subtle">Settings</span>
+          </button>
+        </div>
       </header>
 
+      <section id="settings-panel" class="panel" role="region" aria-labelledby="settings-title">
+        <h3 id="settings-title">Quick Settings</h3>
+        <div class="field">
+          <label for="username-input">Username</label>
+          <input id="username-input" class="text-input" placeholder="Enter your username" />
+        </div>
+        <div class="field" role="group" aria-label="Theme">
+          <label>Theme</label>
+          <div class="actions">
+            <button id="theme-toggle-alt" class="icon-btn" aria-label="Toggle theme (alt)"><span class="icon">🌓</span> Toggle</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Local data</label>
+          <button id="clear-local" class="icon-btn danger" aria-label="Clear local data">Clear username & theme</button>
+        </div>
+        <p class="subtle">Your username is stored locally. Only your messages can be edited or deleted by you on this device.</p>
+      </section>
+
       <main class="card" role="main">
-        <div id="chat-area" class="chat" aria-live="polite" aria-busy="true"></div>
+        <div id="chat-area" class="chat" aria-live="polite" aria-busy="false"></div>
 
         <div id="reply-bar" class="reply-bar" role="status">
           <span class="reply-chip">Replying to <strong id="replying-to-sender"></strong>: <span id="replying-to-text" class="subtle"></span></span>
@@ -176,36 +279,39 @@
 
     <script type="module">
       // -----------------------------
-      // SUPABASE CLIENT SETUP
+      // Supabase Client Setup
       // -----------------------------
+      const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // <-- آدرس پروژه خود را اینجا قرار دهید
+      const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // <-- کلید عمومی خود را اینجا قرار دهید
+
       const { createClient } = supabase;
-
-      const supabaseUrl = 'https://jcipscnmgvmvndxodslz.supabase.co';
-      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjaXBzY25tZ3Ztdm5keG9kc2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDY1MjEsImV4cCI6MjA3MTE4MjUyMX0.mfmQYr7RSxoMDSw_-ZovGtZm9Ir7P7OtRxr0unRjlNA';
-      const sb = createClient(supabaseUrl, supabaseKey);
+      const dbClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       // -----------------------------
-      // DOM REFS
+      // DOM REFS (Unchanged)
       // -----------------------------
-      const $ = (sel) => document.querySelector(sel);
+      const $ = (sel, root = document) => root.querySelector(sel);
       const chatArea = $('#chat-area');
+      const usernameInput = $('#username-input');
       const messageInput = $('#message-input');
       const sendBtn = $('#send-btn');
       const replyBar = $('#reply-bar');
       const replyToSender = $('#replying-to-sender');
       const replyToText = $('#replying-to-text');
       const cancelReplyBtn = $('#cancel-reply');
+      const settingsPanel = $('#settings-panel');
+      const settingsToggle = $('#settings-toggle');
+      const clearLocalBtn = $('#clear-local');
       const themeToggle = $('#theme-toggle');
+      const themeToggleAlt = $('#theme-toggle-alt');
       const themeText = $('#theme-text');
       const themeIcon = $('#theme-icon');
 
       // -----------------------------
-      // THEME MANAGEMENT (Unchanged)
+      // THEME & USERNAME MANAGEMENT (Unchanged)
       // -----------------------------
       const THEME_KEY = 'pref-theme';
-      function getSystemTheme() {
-        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-      }
+      function getSystemTheme() { return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
       function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         const isDark = theme === 'dark';
@@ -214,68 +320,53 @@
         themeText.textContent = isDark ? 'Dark' : 'Light';
         try { localStorage.setItem(THEME_KEY, theme); } catch {}
       }
-      (function initTheme(){
-        let theme = 'dark';
-        try { theme = localStorage.getItem(THEME_KEY) || getSystemTheme(); } catch { theme = getSystemTheme(); }
-        applyTheme(theme);
-      })();
+      (function initTheme(){ let theme = 'dark'; try { theme = localStorage.getItem(THEME_KEY) || getSystemTheme(); } catch { theme = getSystemTheme(); } applyTheme(theme); })();
       themeToggle.addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+      themeToggleAlt.addEventListener('click', () => themeToggle.click());
 
-      // -----------------------------
-      // USERNAME MANAGEMENT
-      // -----------------------------
       const NAME_KEY = 'username';
       let currentUsername = '';
-      function checkUsername() {
-        try { currentUsername = localStorage.getItem(NAME_KEY) || ''; } catch {}
-        if (!currentUsername) {
-          currentUsername = prompt('Please enter your username:');
-          if (currentUsername) {
-            try { localStorage.setItem(NAME_KEY, currentUsername); } catch {}
-          } else {
-             // Handle case where user cancels prompt
-            currentUsername = 'Anonymous';
-          }
-        }
-      }
-      checkUsername();
+      try { currentUsername = localStorage.getItem(NAME_KEY) || ''; } catch {}
+      if (currentUsername) usernameInput.value = currentUsername;
+      usernameInput.addEventListener('change', (e) => { currentUsername = e.target.value.trim(); try { localStorage.setItem(NAME_KEY, currentUsername); } catch {} });
+      clearLocalBtn.addEventListener('click', () => { if (!confirm('Clear local username and theme?')) return; try { localStorage.removeItem(NAME_KEY); localStorage.removeItem(THEME_KEY); } catch {} usernameInput.value = ''; currentUsername = ''; applyTheme(getSystemTheme()); });
+      settingsToggle.addEventListener('click', () => { const open = settingsPanel.classList.toggle('open'); settingsToggle.setAttribute('aria-expanded', String(open)); });
 
       // -----------------------------
       // UTILITIES (Unchanged)
       // -----------------------------
-      const hashColor = (str) => {
-        let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
-        return `hsl(${h % 360} 70% 45%)`;
-      };
+      const hashColor = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; const hue = h % 360; return `hsl(${hue} 70% 45%)`; };
       const initials = (name) => (name || '?').replace(/[_\-]+/g, ' ').split(' ').filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase()).join('') || '?';
-      const fmtTime = (t) => t ? new Date(t).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '';
-      const scrollToBottom = () => { chatArea.scrollTop = chatArea.scrollHeight; };
+      const fmtTime = (t) => { if (!t) return ''; const d = new Date(t); return d.toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }); };
+      function scrollToBottom() { chatArea.scrollTop = chatArea.scrollHeight; }
 
       // -----------------------------
-      // REPLY STATE
+      // REPLY STATE (Unchanged)
       // -----------------------------
       let replyingToMessageId = null;
-      function openReplyBar(username, text) {
-        replyToSender.textContent = username || 'Unknown';
-        replyToText.textContent = text?.slice(0, 50) || '';
-        replyBar.classList.add('open');
-      }
-      function cancelReply() {
-        replyingToMessageId = null;
-        replyBar.classList.remove('open');
-      }
+      function openReplyBar(username, text) { replyToSender.textContent = username || 'Unknown'; replyToText.textContent = text?.slice(0, 50) || ''; replyBar.classList.add('open'); }
+      function cancelReply() { replyingToMessageId = null; replyBar.classList.remove('open'); replyToSender.textContent = ''; replyToText.textContent = ''; }
       cancelReplyBtn.addEventListener('click', cancelReply);
 
       // -----------------------------
-      // MESSAGE SENDING
+      // MESSAGE SENDING (Supabase)
       // -----------------------------
       messageInput.addEventListener('input', () => { sendBtn.disabled = messageInput.value.trim().length === 0; });
       messageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); } });
+
       async function sendMessage() {
         const text = messageInput.value.trim();
         if (!text) return;
-        const payload = { text, username: currentUsername, reply_to: replyingToMessageId };
-        const { error } = await sb.from('messages').insert(payload);
+        if (!currentUsername) { alert('Please enter your username in Settings.'); usernameInput.focus(); return; }
+        
+        const payload = {
+          text,
+          username: currentUsername,
+          reply_to: replyingToMessageId || null
+          // 'created_at' and 'id' are handled by Postgres
+        };
+
+        const { error } = await dbClient.from('messages').insert([payload]);
         if (error) {
           console.error('Error sending message:', error);
           alert('Could not send message.');
@@ -283,45 +374,24 @@
           messageInput.value = '';
           sendBtn.disabled = true;
           cancelReply();
+          messageInput.focus();
         }
       }
       sendBtn.addEventListener('click', sendMessage);
 
       // -----------------------------
-      // RENDER MESSAGES
+      // RENDER MESSAGES (Supabase)
       // -----------------------------
-      const messagesMap = new Map(); // Store message data by ID
-
-      async function renderAllMessages() {
-        chatArea.setAttribute('aria-busy', 'true');
-        chatArea.innerHTML = '';
-        const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending: true });
-        if (error) {
-          console.error('Error fetching messages:', error);
-          chatArea.textContent = 'Could not load messages.';
-          return;
-        }
-        messagesMap.clear();
-        data.forEach(m => messagesMap.set(m.id, m));
-        for (const msg of data) {
-          chatArea.appendChild(messageNode(msg));
-        }
-        chatArea.setAttribute('aria-busy', 'false');
-        scrollToBottom();
-      }
-
-      function messageNode(m) {
-        const id = m.id;
-        const { username, text, created_at, reply_to, reactions } = m;
+      function messageNode({ id, username, text, created_at, reply_to, reactions }) {
         const wrapper = document.createElement('div');
         wrapper.className = 'msg';
         wrapper.dataset.id = id;
-        wrapper.id = `msg-${id}`;
 
         const av = document.createElement('div');
         av.className = 'avatar';
         av.style.background = hashColor(username || '');
         av.textContent = initials(username);
+        wrapper.appendChild(av);
 
         const content = document.createElement('div');
         const meta = document.createElement('div');
@@ -330,127 +400,161 @@
         sender.className = 'sender';
         sender.textContent = username || 'Unknown';
         const time = document.createElement('span');
-        time.className = 'time'; time.style.marginLeft = '8px'; time.textContent = fmtTime(created_at);
+        time.className = 'time';
+        time.style.marginLeft = '8px';
+        time.textContent = fmtTime(created_at);
         meta.append(sender, time);
         content.appendChild(meta);
 
         if (reply_to) {
           const rp = document.createElement('div');
           rp.className = 'reply-preview';
-          const originalMsg = messagesMap.get(reply_to);
-          if (originalMsg) {
-            rp.innerHTML = `Replying to <strong>${originalMsg.username || 'Unknown'}</strong>: "${(originalMsg.text || '').slice(0, 20)}..."`;
-          } else {
-            rp.textContent = 'Replying to an older/deleted message.';
-          }
+          dbClient.from('messages').select('username, text').eq('id', reply_to).single().then(({ data, error }) => {
+            if (data) {
+              rp.innerHTML = `Replying to <strong>${(data.username || 'Unknown')}</strong>: "${(data.text || '').slice(0, 20)}..."`;
+            } else { rp.textContent = 'Replying to a deleted message.'; }
+          }).catch(() => { rp.textContent = 'Reply details unavailable.'; });
           content.appendChild(rp);
         }
 
         const textEl = document.createElement('div');
         textEl.className = 'text';
+        textEl.id = `msg-text-${id}`;
         textEl.textContent = text;
         content.appendChild(textEl);
 
-        const acts = document.createElement('div');
-        acts.className = 'actions';
-
-        if (username === currentUsername) {
+        let isOwner = (username === currentUsername);
+        if (isOwner) {
           const editWrap = document.createElement('div');
-          editWrap.className = 'edit-area'; editWrap.style.display = 'none';
+          editWrap.className = 'edit-area';
+          editWrap.style.display = 'none';
           const editInput = document.createElement('input');
-          editInput.className = 'text-input edit-input'; editInput.value = text;
+          editInput.className = 'text-input edit-input';
+          editInput.value = text;
           const saveBtn = document.createElement('button');
-          saveBtn.className = 'pill-btn'; saveBtn.textContent = 'Save';
-          saveBtn.onclick = async () => {
+          saveBtn.className = 'pill-btn';
+          saveBtn.textContent = 'Save';
+          saveBtn.addEventListener('click', async () => {
             const v = editInput.value.trim();
-            if (v) {
-              await sb.from('messages').update({ text: v }).eq('id', id);
-              // Realtime will handle the update
-            }
-            editWrap.style.display = 'none'; textEl.style.display = '';
-          };
+            if (!v) { alert('Message cannot be empty.'); return; }
+            const { error } = await dbClient.from('messages').update({ text: v }).eq('id', id);
+            if (error) { console.error('Update failed', error); }
+            // UI will update via realtime, but we hide the input manually.
+            editWrap.style.display = 'none';
+            textEl.style.display = '';
+          });
           const cancelBtn = document.createElement('button');
-          cancelBtn.className = 'pill-btn'; cancelBtn.textContent = 'Cancel';
-          cancelBtn.onclick = () => { editWrap.style.display = 'none'; textEl.style.display = ''; };
+          cancelBtn.className = 'pill-btn';
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.addEventListener('click', () => { editInput.value = textEl.textContent; editWrap.style.display = 'none'; textEl.style.display = ''; });
           editWrap.append(editInput, saveBtn, cancelBtn);
           content.appendChild(editWrap);
-
-          const editBtn = document.createElement('button');
-          editBtn.className = 'pill-btn'; editBtn.textContent = 'Edit';
-          editBtn.onclick = () => { textEl.style.display = 'none'; editWrap.style.display = ''; editInput.focus(); };
-
-          const delBtn = document.createElement('button');
-          delBtn.className = 'pill-btn'; delBtn.textContent = 'Delete';
-          delBtn.onclick = async () => { if (confirm('Delete?')) await sb.from('messages').delete().eq('id', id); };
-          acts.append(editBtn, delBtn);
         }
+        wrapper.appendChild(content);
 
+        const acts = document.createElement('div');
+        acts.className = 'actions';
         const replyBtn = document.createElement('button');
-        replyBtn.className = 'pill-btn'; replyBtn.textContent = 'Reply';
-        replyBtn.onclick = () => { replyingToMessageId = id; openReplyBar(username, text); messageInput.focus(); };
+        replyBtn.className = 'pill-btn';
+        replyBtn.textContent = 'Reply';
+        replyBtn.addEventListener('click', () => { replyingToMessageId = id; openReplyBar(username, text); messageInput.focus(); });
         acts.appendChild(replyBtn);
 
+        const safeReactions = reactions || {};
         const upBtn = document.createElement('button');
         upBtn.className = 'pill-btn';
         const upCount = document.createElement('span');
-        upCount.textContent = String(reactions?.thumbsUp || 0);
+        upCount.textContent = String(safeReactions.thumbsUp || 0);
         upBtn.innerHTML = '👍 '; upBtn.appendChild(upCount);
-        upBtn.onclick = () => react(id, 'thumbsUp');
+        upBtn.addEventListener('click', () => react(id, 'thumbsUp'));
 
         const downBtn = document.createElement('button');
         downBtn.className = 'pill-btn';
         const downCount = document.createElement('span');
-        downCount.textContent = String(reactions?.thumbsDown || 0);
+        downCount.textContent = String(safeReactions.thumbsDown || 0);
         downBtn.innerHTML = '👎 '; downBtn.appendChild(downCount);
-        downBtn.onclick = () => react(id, 'thumbsDown');
-
+        downBtn.addEventListener('click', () => react(id, 'thumbsDown'));
         acts.append(upBtn, downBtn);
 
-        wrapper.append(av, content, acts);
+        if (isOwner) {
+          const editBtn = document.createElement('button');
+          editBtn.className = 'pill-btn';
+          editBtn.textContent = 'Edit';
+          editBtn.addEventListener('click', () => {
+            const editWrap = content.querySelector('.edit-area');
+            const shown = editWrap.style.display !== 'none';
+            editWrap.style.display = shown ? 'none' : '';
+            textEl.style.display = shown ? '' : 'none';
+            if (!shown) editWrap.querySelector('input').focus();
+          });
+          const delBtn = document.createElement('button');
+          delBtn.className = 'pill-btn';
+          delBtn.textContent = 'Delete';
+          delBtn.addEventListener('click', async () => {
+            if (!confirm('Delete this message?')) return;
+            const { error } = await dbClient.from('messages').delete().eq('id', id);
+            if (error) { console.error('Delete failed', error); }
+          });
+          acts.append(editBtn, delBtn);
+        }
+        wrapper.appendChild(acts);
         return wrapper;
       }
 
       async function react(id, type) {
-        const { data } = await sb.from('messages').select('reactions').eq('id', id).single();
-        const currentReactions = data.reactions || { thumbsUp: 0, thumbsDown: 0 };
-        currentReactions[type] = (currentReactions[type] || 0) + 1;
-        await sb.from('messages').update({ reactions: currentReactions }).eq('id', id);
+        // Use an RPC function for atomic increment to prevent race conditions
+        const { error } = await dbClient.rpc('increment_reaction', {
+          message_id_in: id,
+          reaction_type_in: type
+        });
+        if (error) console.error('Reaction failed:', error);
       }
 
       // -----------------------------
-      // REALTIME SUBSCRIPTION
+      // SUBSCRIBE & RENDER LIST (Supabase)
       // -----------------------------
-      function handleRealtime(payload) {
-        const { eventType, new: newRecord, old: oldRecord, table } = payload;
-        if (table !== 'messages') return;
+      async function fetchAndRenderMessages() {
+        chatArea.setAttribute('aria-busy', 'true');
+        const { data, error } = await dbClient
+          .from('messages')
+          .select('*')
+          .order('created_at', { ascending: true });
 
-        if (eventType === 'INSERT') {
-          messagesMap.set(newRecord.id, newRecord);
-          chatArea.appendChild(messageNode(newRecord));
-          scrollToBottom();
+        if (error) {
+          console.error('Error fetching messages:', error);
+          return;
         }
-        if (eventType === 'UPDATE') {
-            const oldNode = $(`#msg-${newRecord.id}`);
-            if (oldNode) {
-                messagesMap.set(newRecord.id, newRecord);
-                oldNode.replaceWith(messageNode(newRecord));
-            }
+
+        chatArea.innerHTML = '';
+        for (const message of data) {
+          const node = messageNode(message);
+          chatArea.appendChild(node);
         }
-        if (eventType === 'DELETE') {
-            const node = $(`#msg-${oldRecord.id}`);
-            if (node) {
-                messagesMap.delete(oldRecord.id);
-                node.remove();
-            }
-        }
+        chatArea.setAttribute('aria-busy', 'false');
+        scrollToBottom();
       }
 
-      // Initial fetch, then listen for changes
-      renderAllMessages();
-      sb.channel('public:messages')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, handleRealtime)
+      // Initial fetch and render
+      fetchAndRenderMessages();
+
+      // Listen to DB changes
+      dbClient.channel('public:messages')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'messages' },
+          (payload) => {
+            console.log('Change received!', payload);
+            // Simple approach: re-fetch and re-render the entire list on any change
+            fetchAndRenderMessages();
+          }
+        )
         .subscribe();
-
+      
+      // Focus behavior on load (Unchanged)
+      window.addEventListener('load', () => {
+        if (!usernameInput.value) settingsPanel.classList.add('open');
+        messageInput.focus();
+      });
     </script>
   </body>
 </html>
