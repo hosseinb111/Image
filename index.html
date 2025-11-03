@@ -128,10 +128,32 @@
       .reply-chip { background: var(--surface-2); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
       .link { background: transparent; border: none; color: var(--accent); cursor: pointer; }
       .link:hover { text-decoration: underline; }
+      
+      /* Connection Status */
+      .connection-pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--surface); color: var(--muted); font-size: 12px;
+        font-weight: 500; padding: 6px 10px; border-radius: 999px;
+        box-shadow: var(--shadow); transition: all .2s ease;
+      }
+      .connection-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        transition: background .3s ease;
+      }
+      .connection-dot.connected { background: var(--success); }
+      .connection-dot.disconnected { background: var(--danger); }
+      .connection-dot.connecting {
+        background: #f59e0b; /* yellow-500 */
+        animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
 
       footer { text-align: center; color: var(--muted); font-size: 12px; padding: 12px 4px; }
       :is(button, input, textarea):focus-visible { outline: none; box-shadow: var(--ring); }
       @keyframes fadeInUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; translateY(0); } }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .5; }
+      }
       @media (max-width: 640px) {
         .msg { grid-template-columns: 36px 1fr auto; }
         .avatar { width: 36px; height: 36px; font-size: 12px; }
@@ -148,11 +170,15 @@
           </div>
         </div>
         <div class="actions">
+          <div id="connection-indicator" class="connection-pill" aria-live="polite">
+            <span id="connection-dot" class="connection-dot"></span>
+            <span id="connection-text">Connecting...</span>
+          </div>
           <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme" aria-pressed="false" title="Toggle light/dark">
             <span class="icon" id="theme-icon" aria-hidden="true">🌙</span>
             <span id="theme-text" class="subtle">Dark</span>
           </button>
-          </div>
+        </div>
       </header>
 
       <main class="card" role="main">
@@ -198,9 +224,34 @@
       const themeToggle = $('#theme-toggle');
       const themeText = $('#theme-text');
       const themeIcon = $('#theme-icon');
+      const connectionDot = $('#connection-dot');
+      const connectionText = $('#connection-text');
 
       // -----------------------------
-      // THEME MANAGEMENT (Unchanged)
+      // CONNECTION STATUS
+      // -----------------------------
+      function updateConnectionStatus(state) {
+        if (!connectionDot || !connectionText) return;
+        connectionDot.classList.remove('connected', 'disconnected', 'connecting');
+        switch (state) {
+          case 'connected':
+            connectionDot.classList.add('connected');
+            connectionText.textContent = 'Connected';
+            break;
+          case 'disconnected':
+            connectionDot.classList.add('disconnected');
+            connectionText.textContent = 'Disconnected';
+            break;
+          case 'connecting':
+          default:
+            connectionDot.classList.add('connecting');
+            connectionText.textContent = 'Connecting';
+            break;
+        }
+      }
+
+      // -----------------------------
+      // THEME MANAGEMENT
       // -----------------------------
       const THEME_KEY = 'pref-theme';
       function getSystemTheme() {
@@ -241,13 +292,13 @@
       checkUsername();
 
       // -----------------------------
-      // UTILITIES (Unchanged)
+      // UTILITIES
       // -----------------------------
       const hashColor = (str) => {
         let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
         return `hsl(${h % 360} 70% 45%)`;
       };
-      const initials = (name) => (name || '?').replace(/[_\-]+/g, ' ').split(' ').filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase()).join('') || '?';
+      const initials = (name) => (name || '?').replace(/[_-]+/g, ' ').split(' ').filter(Boolean).slice(0, 2).map(s => s[0]?.toUpperCase()).join('') || '?';
       const fmtTime = (t) => t ? new Date(t).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : '';
       const scrollToBottom = () => { chatArea.scrollTop = chatArea.scrollHeight; };
 
@@ -447,9 +498,28 @@
 
       // Initial fetch, then listen for changes
       renderAllMessages();
-      sb.channel('public:messages')
+      updateConnectionStatus('connecting');
+
+      const channel = sb.channel('public:messages')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, handleRealtime)
-        .subscribe();
+        .subscribe((status, err) => {
+            if (status === 'SUBSCRIBED') {
+                updateConnectionStatus('connected');
+            } else if (status === 'CHANNEL_ERROR') {
+                console.error('Realtime channel error:', err);
+                updateConnectionStatus('disconnected');
+            }
+        });
+      
+      sb.realtime.onOpen(() => updateConnectionStatus('connected'));
+      sb.realtime.onClose(() => updateConnectionStatus('disconnected'));
+      sb.realtime.onError((e) => {
+        console.error('Realtime connection error.', e);
+        updateConnectionStatus('disconnected');
+      });
+
+      window.addEventListener('offline', () => updateConnectionStatus('disconnected'));
+      window.addEventListener('online', () => updateConnectionStatus('connecting'));
 
     </script>
   </body>
