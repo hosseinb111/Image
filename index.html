@@ -71,25 +71,25 @@
         flex-wrap: wrap;
       }
       .brand { display: flex; align-items: flex-start; gap: 8px; flex: 1; min-width: 0; }
-      .brand h1 { 
-        font-size: clamp(16px, 4vw, 24px); 
-        margin: 0; 
-        letter-spacing: .2px; 
+      .brand h1 {
+        font-size: clamp(16px, 4vw, 24px);
+        margin: 0;
+        letter-spacing: .2px;
         color: var(--accent);
         word-break: break-word;
         line-height: 1.2;
       }
-      .brand p { 
-        margin: 0; 
-        font-size: clamp(10px, 2.5vw, 12px); 
+      .brand p {
+        margin: 0;
+        font-size: clamp(10px, 2.5vw, 12px);
         color: var(--muted);
         line-height: 1.3;
       }
 
-      .actions { 
-        display: flex; 
-        align-items: center; 
-        gap: 6px; 
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
         flex-wrap: wrap;
         justify-content: flex-end;
       }
@@ -112,10 +112,10 @@
         border-radius: 10px; font-size: 11px; color: var(--muted);
         box-shadow: var(--shadow); flex-wrap: wrap; overflow-x: auto;
       }
-      .stat-item { 
-        display: flex; 
-        align-items: center; 
-        gap: 4px; 
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
         white-space: nowrap;
         flex-shrink: 0;
       }
@@ -130,7 +130,7 @@
         padding: 12px; display: flex; flex-direction: column; gap: 10px;
         flex: 1; min-height: 0;
       }
-      
+
       /* Toolbar */
       .toolbar {
         display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
@@ -142,7 +142,7 @@
       }
       .toolbar-btn:hover { background: var(--surface); }
       .search-box {
-        flex: 1; min-width: 120px; background: var(--surface-2); 
+        flex: 1; min-width: 120px; background: var(--surface-2);
         border: 1px solid rgba(255,255,255,.08); color: var(--text);
         padding: 6px 10px; border-radius: 8px; outline: none; font-size: 13px;
       }
@@ -150,15 +150,15 @@
 
       .chat {
         display: flex; flex-direction: column; gap: 8px;
-        overflow-y: auto; overflow-x: hidden; padding: 6px; border-radius: 10px; 
-        background: var(--bg); border: 1px solid rgba(255,255,255,.06); 
+        overflow-y: auto; overflow-x: hidden; padding: 6px; border-radius: 10px;
+        background: var(--bg); border: 1px solid rgba(255,255,255,.06);
         flex: 1; scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
       }
 
       /* Message bubble */
       .msg {
-        display: grid; 
+        display: grid;
         grid-template-columns: 32px 1fr;
         grid-template-rows: auto auto;
         gap: 8px;
@@ -211,15 +211,15 @@
       .badge.admin { background: var(--danger); }
       .badge.mod { background: var(--info); }
       .badge.vip { background: var(--warning); color: #000; }
-      .msg .text { 
-        white-space: pre-wrap; 
-        word-break: break-word; 
+      .msg .text {
+        white-space: pre-wrap;
+        word-break: break-word;
         margin-top: 4px;
         font-size: 14px;
         line-height: 1.4;
       }
       .msg .text a { color: var(--accent); text-decoration: underline; word-break: break-all; }
-      
+
       /* Message formatting */
       .msg .text strong { font-weight: 700; }
       .msg .text em { font-style: italic; }
@@ -241,12 +241,12 @@
         background: none;
         padding: 0;
       }
-      
-      .msg .actions { 
+
+      .msg .actions {
         grid-column: 1 / 3;
         grid-row: 2 / 3;
-        display: flex; 
-        gap: 4px; 
+        display: flex;
+        gap: 4px;
         flex-wrap: wrap;
         margin-top: 4px;
       }
@@ -257,7 +257,7 @@
         transition: all .2s ease;
       }
       .pill-btn:hover { background: var(--surface-2); transform: scale(1.05); }
-      
+
       /* Small copy button */
       .copy-btn {
         background: var(--surface); color: var(--text); border: 1px solid rgba(255,255,255,.08);
@@ -266,12 +266,12 @@
       }
       .copy-btn:hover { background: var(--surface-2); }
       .copy-btn:active { transform: scale(0.95); }
-      .copy-btn.copied { 
-        background: var(--success); 
+      .copy-btn.copied {
+        background: var(--success);
         color: white;
         border-color: var(--success);
       }
-      
+
       .reply-preview {
         font-size: 11px; color: var(--muted); background: transparent;
         border-left: 2px solid var(--accent); padding-left: 6px; margin-bottom: 4px;
@@ -304,7 +304,7 @@
       .image-preview:hover { transform: scale(1.02); }
 
       /* Composer */
-      .composer { 
+      .composer {
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -335,7 +335,7 @@
       }
       .tool-btn:hover { background: var(--surface); transform: scale(1.05); }
       .tool-btn:active { transform: scale(0.95); }
-      
+
       textarea.text-input, .text-input {
         width: 100%; background: var(--surface-2); border: 1px solid transparent;
         color: var(--text); padding: 10px; border-radius: 10px;
@@ -343,9 +343,9 @@
         font-size: 14px; font-family: inherit;
       }
       textarea.text-input:focus, .text-input:focus { border-color: var(--accent); box-shadow: var(--ring); }
-      textarea#message-input { 
-        min-height: 48px; 
-        max-height: 120px; 
+      textarea#message-input {
+        min-height: 48px;
+        max-height: 120px;
         resize: vertical;
       }
       .send-btn {
@@ -378,33 +378,31 @@
         font-size: 10px; color: var(--muted); text-align: right;
         padding: 2px 4px;
       }
-      .char-count.warning { color: var(--warning); }
-      .char-count.danger { color: var(--danger); }
 
       /* Edit inline */
-      .edit-area { 
-        display: grid; 
-        grid-template-columns: 1fr auto; 
-        gap: 4px; 
+      .edit-area {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 4px;
         margin-top: 6px;
       }
       .edit-input { padding: 6px 8px; border-radius: 8px; font-size: 13px; }
 
       /* Reply bar */
-      .reply-bar { 
-        display: none; 
-        align-items: center; 
-        gap: 8px; 
+      .reply-bar {
+        display: none;
+        align-items: center;
+        gap: 8px;
         padding: 6px 8px;
         background: var(--surface-2);
         border-radius: 8px;
         flex-wrap: wrap;
       }
       .reply-bar.open { display: flex; }
-      .reply-chip { 
-        background: var(--surface); 
-        padding: 4px 8px; 
-        border-radius: 999px; 
+      .reply-chip {
+        background: var(--surface);
+        padding: 4px 8px;
+        border-radius: 999px;
         font-size: 11px;
         flex: 1;
         min-width: 0;
@@ -412,17 +410,17 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-      .link { 
-        background: transparent; 
-        border: none; 
-        color: var(--accent); 
+      .link {
+        background: transparent;
+        border: none;
+        color: var(--accent);
         cursor: pointer;
         font-size: 11px;
         padding: 4px 8px;
         flex-shrink: 0;
       }
       .link:hover { text-decoration: underline; }
-      
+
       /* Connection Status */
       .connection-pill {
         display: inline-flex; align-items: center; gap: 6px;
@@ -455,21 +453,21 @@
         box-shadow: var(--shadow);
         animation: slideUp .3s ease;
       }
-      .modal-header { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 16px;
         gap: 12px;
       }
       .modal-title { font-size: 18px; font-weight: 600; }
-      .close-btn { 
-        background: transparent; 
-        border: none; 
-        color: var(--text); 
-        font-size: 24px; 
-        cursor: pointer; 
-        padding: 0; 
+      .close-btn {
+        background: transparent;
+        border: none;
+        color: var(--text);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
         line-height: 1;
         flex-shrink: 0;
         transition: transform .2s ease;
@@ -577,14 +575,14 @@
         position: relative;
       }
 
-      footer { 
-        text-align: center; 
-        color: var(--muted); 
-        font-size: 11px; 
+      footer {
+        text-align: center;
+        color: var(--muted);
+        font-size: 11px;
         padding: 8px 4px;
       }
       :is(button, input, textarea):focus-visible { outline: none; box-shadow: var(--ring); }
-      
+
       @keyframes fadeInUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes pulse {
         0%, 100% { opacity: 1; }
@@ -604,14 +602,14 @@
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
-      
+
       /* Mobile optimizations */
       @media (max-width: 640px) {
         .app { padding: 8px; gap: 10px; }
         .card { padding: 10px; border-radius: 12px; }
         .brand p { display: none; }
         .icon-btn .subtle { display: none; }
-        .msg { 
+        .msg {
           grid-template-columns: 28px 1fr;
           padding: 8px;
           gap: 6px;
@@ -728,7 +726,7 @@
                 placeholder="Type a message… (Shift+Enter for newline)"
                 aria-label="Message input"
               ></textarea>
-              <div class="char-count" id="char-count">0 / 1000</div>
+              <div class="char-count" id="char-count">0 characters</div>
             </div>
             <button id="send-btn" class="send-btn" disabled aria-label="Send message">Send</button>
           </div>
@@ -780,7 +778,15 @@
       const supabaseUrl = 'https://jcipscnmgvmvndxodslz.supabase.co';
       const supabaseKey =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjaXBzY25tZ3Ztdm5keG9kc2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MDY1MjEsImV4cCI6MjA3MTE4MjUyMX0.mfmQYr7RSxoMDSw_-ZovGtZm9Ir7P7OtRxr0unRjlNA';
-      const sb = createClient(supabaseUrl, supabaseKey);
+      const sb = createClient(supabaseUrl, supabaseKey, {
+        realtime: {
+          params: {
+            eventsPerSecond: 10
+          },
+          timeout: 20000,
+          heartbeatIntervalMs: 15000
+        }
+      });
 
       const $ = (sel) => document.querySelector(sel);
       const chatArea = $('#chat-area');
@@ -931,7 +937,7 @@
           if (!msg) return;
 
           let deleteBtn = msgEl.querySelector('.delete-own-btn');
-          
+
           if (msg.username === currentUsername) {
             if (!deleteBtn) {
               const acts = msgEl.querySelector('.actions');
@@ -1018,16 +1024,10 @@
         return linkify(text);
       }
 
-      const MAX_CHARS = 1000;
       messageInput.addEventListener('input', () => {
         const len = messageInput.value.length;
-        charCount.textContent = `${len} / ${MAX_CHARS}`;
-        charCount.classList.remove('warning', 'danger');
-        if (len > MAX_CHARS * 0.9) charCount.classList.add('danger');
-        else if (len > MAX_CHARS * 0.7) charCount.classList.add('warning');
-
-        sendBtn.disabled =
-          messageInput.value.trim().length === 0 || len > MAX_CHARS;
+        charCount.textContent = `${len} characters`;
+        sendBtn.disabled = messageInput.value.trim().length === 0;
       });
 
       emojiButtons.forEach((btn) => {
@@ -1281,7 +1281,7 @@
 
       async function sendMessage() {
         const text = messageInput.value.trim();
-        if (!text || text.length > MAX_CHARS) return;
+        if (!text) return;
 
         sendBtn.classList.add('sending');
         sendBtn.disabled = true;
@@ -1303,7 +1303,7 @@
           sendBtn.disabled = false;
         } else {
           messageInput.value = '';
-          charCount.textContent = '0 / 1000';
+          charCount.textContent = '0 characters';
           sendBtn.disabled = true;
           cancelReply();
         }
@@ -1459,6 +1459,18 @@
           };
 
           acts.append(editBtn);
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'pill-btn delete-own-btn';
+          deleteBtn.textContent = '🗑️ Delete';
+          deleteBtn.onclick = async () => {
+            if (confirm('Delete this message?')) {
+              deletedMessageIds.add(id);
+              await sb.from('messages').delete().eq('id', id);
+              showToast('Message deleted', 'success');
+            }
+          };
+          acts.appendChild(deleteBtn);
         }
 
         const replyBtn = document.createElement('button');
@@ -1474,12 +1486,12 @@
         // ✅ SINGLE REACTION BUTTON - Clicking cycles through: none → 👍 → 👎 → none
         const reactionBtn = document.createElement('button');
         reactionBtn.className = 'pill-btn reaction-summary-btn';
-        
+
         const upCount = reactions?.thumbsUp || 0;
         const downCount = reactions?.thumbsDown || 0;
-        
+
         reactionBtn.textContent = `👍 ${upCount} | 👎 ${downCount}`;
-        
+
         reactionBtn.onclick = async () => {
           const msg = messagesMap.get(id);
           if (!msg) return;
@@ -1487,9 +1499,9 @@
           const currentReactions = msg.reactions || {};
           const userKey = `user_${currentUsername}`;
           const currentUserReaction = currentReactions[userKey]; // 'up', 'down', or undefined
-          
+
           let newReactions = { ...currentReactions };
-          
+
           // Cycle: no reaction → thumbs up → thumbs down → no reaction
           if (!currentUserReaction) {
             // Add thumbs up
@@ -1558,42 +1570,93 @@
       renderAllMessages();
       updateConnectionStatus('connecting');
 
-      const channel = sb
-        .channel('public:messages')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'messages' },
-          handleRealtime,
-        )
-        .subscribe((status, err) => {
-          if (status === 'SUBSCRIBED') {
-            updateConnectionStatus('connected');
-            showToast('Connected to chat!', 'success');
-          } else if (status === 'CHANNEL_ERROR') {
-            console.error('Realtime channel error:', err);
-            updateConnectionStatus('disconnected');
-            showToast('Connection error', 'error');
-          }
-        });
+      let reconnectAttempts = 0;
+      let maxReconnectDelay = 30000;
+      let reconnectTimer = null;
+      let channel = null;
 
-      sb.realtime.onOpen(() => updateConnectionStatus('connected'));
+      function getReconnectDelay() {
+        return Math.min(1000 * Math.pow(2, reconnectAttempts), maxReconnectDelay);
+      }
+
+      function attemptReconnect() {
+        if (reconnectTimer) return;
+
+        const delay = getReconnectDelay();
+        console.log(`Reconnecting in ${delay/1000}s...`);
+        updateConnectionStatus('connecting');
+
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          reconnectAttempts++;
+          setupRealtimeChannel();
+        }, delay);
+      }
+
+      function setupRealtimeChannel() {
+        if (channel) {
+          sb.removeChannel(channel);
+        }
+
+        channel = sb
+          .channel('public:messages')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'messages' },
+            handleRealtime,
+          )
+          .subscribe((status, err) => {
+            if (status === 'SUBSCRIBED') {
+              updateConnectionStatus('connected');
+              reconnectAttempts = 0;
+              showToast(reconnectAttempts > 0 ? 'Reconnected!' : 'Connected!', 'success');
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+              console.error('Connection error:', err);
+              updateConnectionStatus('disconnected');
+              showToast('Connection error, retrying...', 'error');
+              attemptReconnect();
+            } else if (status === 'CLOSED') {
+              updateConnectionStatus('disconnected');
+              attemptReconnect();
+            }
+          });
+      }
+
+      setupRealtimeChannel();
+
       sb.realtime.onClose(() => {
+        console.log('Connection closed');
         updateConnectionStatus('disconnected');
-        showToast('Disconnected from chat', 'error');
-      });
-      sb.realtime.onError((e) => {
-        console.error('Realtime connection error.', e);
-        updateConnectionStatus('disconnected');
+        showToast('Disconnected', 'error');
+        attemptReconnect();
       });
 
-      window.addEventListener('offline', () => {
+      sb.realtime.onError((e) => {
+        console.error('Connection error:', e);
         updateConnectionStatus('disconnected');
-        showToast('You are offline', 'error');
+        attemptReconnect();
       });
+
       window.addEventListener('online', () => {
         updateConnectionStatus('connecting');
-        showToast('Back online!', 'success');
+        showToast('Back online, reconnecting...', 'success');
+        reconnectAttempts = 0;
+        setupRealtimeChannel();
       });
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && channel && channel.state !== 'joined') {
+          console.log('Tab visible, checking connection...');
+          reconnectAttempts = 0;
+          setupRealtimeChannel();
+        }
+      });
+
+      setInterval(() => {
+        if (channel && channel.state === 'joined') {
+          reconnectAttempts = 0;
+        }
+      }, 30000);
     </script>
   </body>
 </html>
