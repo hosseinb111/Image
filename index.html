@@ -3,67 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        /* Your existing CSS styles go here */
-    </style>
-    <script>
-        /**
-         * Sanitize user input to prevent XSS attacks.
-         * @param {string} input The input value to sanitize.
-         * @returns {string} The sanitized input.
-         */
-        function sanitizeInput(input) {
-            const element = document.createElement('div');
-            element.innerText = input;
-            return element.innerHTML;
-        }
-
-        /**
-         * Handle errors gracefully.
-         * @param {Error} error The error object.
-         */
-        function handleError(error) {
-            console.error('An error occurred:', error.message);
-            alert('Something went wrong. Please try again later.');
-        }
-
-        /**
-         * Debounce function to limit the rate of function calls.
-         * @param {Function} fn The function to debounce.
-         * @param {number} delay The debounce delay in milliseconds.
-         * @returns {Function} The debounced function.
-         */
-        function debounce(fn, delay) {
-            let timeoutId;
-            return function (...args) {
-                if (timeoutId) clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => {
-                    fn.apply(this, args);
-                }, delay);
-            };
-        }
-
-        /**
-         * Main function to be called on user action.
-         */
-        function onUserAction() {
-            try {
-                const userInput = document.getElementById('inputField').value;
-                const sanitizedInput = sanitizeInput(userInput);
-                // Call other functions using sanitized input
-            } catch (error) {
-                handleError(error);
-            }
-        }
-
-        // Example usage: debouncing the user action
-        const debouncedUserAction = debounce(onUserAction, 300);
-        document.getElementById('inputField').addEventListener('input', debouncedUserAction);
-    </script>
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <input type="text" id="inputField" placeholder="Type here...">
-    <!-- Your existing HTML content goes here -->
+    <div id="chat-container">
+        <div id="messages"></div>
+        <input id="username" placeholder="Enter your username" required />
+        <input id="message" placeholder="Type a message" required />
+        <button id="send">Send</button>
+    </div>
+    <script src="chat.js"></script>
 </body>
 </html>
+
+// chat.js
+const API_KEY = process.env.SUPABASE_API_KEY; // Use environment variable
+
+// Utility function for sanitization 
+const sanitizeInput = (input) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.textContent = input;
+    return tempDiv.innerHTML;
+};
+
+const validateInput = (username, message) => {
+    const usernameRegex = /^[a-zA-Z0-9]{3,20}$/; // Username validation regex 
+    const messageRegex = /^.{1,500}$/; // Message length validation
+    return usernameRegex.test(username) && messageRegex.test(message);
+};
+
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(null, args);
+        }, delay);
+    };
+};
+
+const sendMessage = async () => {
+    try {
+        const username = sanitizeInput(document.getElementById('username').value);
+        const message = sanitizeInput(document.getElementById('message').value);
+        if (!validateInput(username, message)) {
+            throw new Error('Invalid input.');
+        }
+        // Send message to server...
+    } catch (error) {
+        console.error('Error sending message:', error);
+    }
+};
+
+document.getElementById('send').addEventListener('click', debounce(sendMessage, 300));
+
+// Cleanup listeners to prevent memory leaks
+window.addEventListener('beforeunload', () => {
+    document.getElementById('send').removeEventListener('click', sendMessage);
+});
