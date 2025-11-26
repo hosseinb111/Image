@@ -691,7 +691,6 @@
       </div>
 
       <main class="card" role="main">
-        <!-- Toolbar -->
         <div class="toolbar">
           <input type="text" id="search-box" class="search-box" placeholder="🔍 Search messages..." />
           <button id="scroll-bottom-btn" class="toolbar-btn" title="Scroll to Bottom">⬇️ Bottom</button>
@@ -739,7 +738,6 @@
       </footer>
     </div>
 
-    <!-- Stats Modal -->
     <div id="stats-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -750,7 +748,6 @@
       </div>
     </div>
 
-    <!-- Users Modal -->
     <div id="users-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -761,13 +758,11 @@
       </div>
     </div>
 
-    <!-- Image Lightbox -->
     <div id="lightbox" class="lightbox">
       <button class="lightbox-close" id="lightbox-close">&times;</button>
       <img id="lightbox-img" src="" alt="Full size image" />
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1627,24 +1622,8 @@
       updateConnectionStatus('connecting');
       setupRealtimeChannel();
 
-      sb.realtime.onOpen(() => {
-        console.log('Connection opened');
-        updateConnectionStatus('connected');
-        reconnectAttempts = 0;
-      });
-      
-      sb.realtime.onClose(() => {
-        console.log('Connection closed');
-        updateConnectionStatus('disconnected');
-        showToast('Disconnected', 'error');
-        attemptReconnect();
-      });
-      
-      sb.realtime.onError((e) => {
-        console.error('Connection error:', e);
-        updateConnectionStatus('disconnected');
-        attemptReconnect();
-      });
+      // ✅ FIXED: Removed the invalid sb.realtime.onOpen / onClose / onError blocks
+      // The logic for connection status is now fully handled inside setupRealtimeChannel's .subscribe() callback above.
 
       window.addEventListener('offline', () => {
         updateConnectionStatus('disconnected');
